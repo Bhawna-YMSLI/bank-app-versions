@@ -1,0 +1,37 @@
+<app-header title="Clerk Dashboard"></app-header>
+
+<main class="page">
+  <section class="card">
+    <h3>Operations</h3>
+    <form [formGroup]="txnForm" class="grid" (ngSubmit)="deposit()">
+      <input formControlName="accountNumber" placeholder="Account Number" />
+      <input type="number" formControlName="amount" placeholder="Amount" />
+      <div>
+        <button class="btn btn-primary" [disabled]="txnForm.invalid">Deposit</button>
+        <button type="button" class="btn btn-secondary" (click)="withdraw()" [disabled]="txnForm.invalid">Withdraw</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Transaction History (Read-only)</h3>
+    <form [formGroup]="historyForm" (ngSubmit)="loadHistory()" class="grid">
+      <input formControlName="accountNumber" placeholder="Account Number" />
+      <button class="btn btn-secondary">Load History</button>
+    </form>
+
+    <table>
+      <tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+      <tr *ngFor="let transaction of history">
+        <td>{{ transaction.transactionId }}</td>
+        <td>{{ transaction.transactionType }}</td>
+        <td>{{ transaction.amount | currency : 'INR' }}</td>
+        <td>{{ transaction.status }}</td>
+        <td>{{ transaction.createdAt | date : 'short' }}</td>
+      </tr>
+    </table>
+  </section>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="success" *ngIf="success">{{ success }}</p>
+</main>

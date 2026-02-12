@@ -1,0 +1,28 @@
+.page {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.4rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 0.5rem;
+}
+
+.loading {
+  margin: 0;
+  color: #334155;
+}

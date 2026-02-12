@@ -1,0 +1,25 @@
+<main class="login-wrap">
+  <section class="card login-card">
+    <h1>Bank Portal Login</h1>
+    <p>JWT authentication with role-based access.</p>
+
+    <p class="success" *ngIf="logoutMessage">{{ logoutMessage }}</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label for="username">Username</label>
+      <input id="username" formControlName="username" placeholder="manager" />
+      <div class="error" *ngIf="form.controls.username.invalid && form.controls.username.touched">
+        Minimum 3 characters required.
+      </div>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" placeholder="••••••••" />
+      <div class="error" *ngIf="form.controls.password.invalid && form.controls.password.touched">
+        Minimum 8 characters required.
+      </div>
+
+      <button class="btn btn-primary" [disabled]="form.invalid">Login</button>
+    </form>
+  </section>
+</main>

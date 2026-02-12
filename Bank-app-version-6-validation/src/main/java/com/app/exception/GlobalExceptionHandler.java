@@ -1,10 +1,13 @@
 package com.app.exception;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -93,6 +96,21 @@ public class GlobalExceptionHandler {
 		problem.setProperty("timestamp", Instant.now());
 
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
+	}
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ProblemDetail> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+		ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		problem.setTitle("Validation Failed");
+		problem.setDetail("One or more request fields are invalid");
+		problem.setProperty("timestamp", Instant.now());
+		problem.setProperty("errorCode", "VALIDATION_ERROR");
+
+		Map<String, String> validationErrors = new LinkedHashMap<>();
+		ex.getBindingResult().getFieldErrors().forEach(
+				fieldError -> validationErrors.put(fieldError.getField(), fieldError.getDefaultMessage()));
+		problem.setProperty("errors", validationErrors);
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problem);
 	}
 
 }

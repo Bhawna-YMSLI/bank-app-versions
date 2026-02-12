@@ -17,6 +17,8 @@ import com.app.dto.user.UserRequestDto;
 import com.app.dto.user.UserResponseDto;
 import com.app.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RequestMapping(path = "v5/users")
 @RestController
 @PreAuthorize("hasRole('MANAGER')")
@@ -28,7 +30,7 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/clerk")
-	ResponseEntity<UserResponseDto> createClerk(@RequestBody UserRequestDto userRequestDto) {
+	ResponseEntity<UserResponseDto> createClerk(@Valid @RequestBody UserRequestDto userRequestDto) {
 		UserResponseDto saved = userService.createClerk(userRequestDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}

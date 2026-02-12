@@ -17,6 +17,8 @@ import com.app.dto.transaction.TransactionHistoryDto;
 import com.app.dto.transaction.WithdrawDto;
 import com.app.service.TransactionService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(path = "v5/transactions")
 public class TransactionController {
@@ -28,7 +30,7 @@ public class TransactionController {
 
 	@PutMapping("/deposit")
 	@PreAuthorize("hasAnyRole('CLERK','MANAGER')")
-	public ResponseEntity<Void> deposit(@RequestBody DepositDto depositDto, Authentication authentication) {
+	public ResponseEntity<Void> deposit(@Valid @RequestBody DepositDto depositDto, Authentication authentication) {
 
 		transactionService.deposit(depositDto.getAccountNumber(), depositDto.getAmount(), authentication.getName());
 
@@ -37,7 +39,7 @@ public class TransactionController {
 
 	@PutMapping("/withdraw")
 	@PreAuthorize("hasAnyRole('CLERK','MANAGER')")
-	public ResponseEntity<Void> withdraw(@RequestBody WithdrawDto withdrawDto, Authentication authentication) {
+	public ResponseEntity<Void> withdraw(@Valid @RequestBody WithdrawDto withdrawDto, Authentication authentication) {
 
 		transactionService.withdraw(withdrawDto.getAccountNumber(), withdrawDto.getAmount(), authentication.getName());
 

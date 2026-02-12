@@ -14,6 +14,8 @@ import com.app.dto.auth.LoginResponseDto;
 import com.app.repo.UserDao;
 import com.app.security.JwtService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/v5/auth")
 public class AuthController {
@@ -29,7 +31,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public LoginResponseDto login(@RequestBody LoginRequestDto request) {
+	public LoginResponseDto login(@Valid@RequestBody LoginRequestDto request) {
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 

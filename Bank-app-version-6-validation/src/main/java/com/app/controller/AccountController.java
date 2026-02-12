@@ -18,6 +18,8 @@ import com.app.dto.account.AccountRequestDto;
 import com.app.dto.account.AccountResponseDto;
 import com.app.service.AccountService;
 
+import jakarta.validation.Valid;
+
 @RequestMapping(path = "v5/accounts")
 @RestController
 public class AccountController {
@@ -41,7 +43,7 @@ public class AccountController {
 
 	@PostMapping
 	@PreAuthorize("hasRole('MANAGER')")
-	public ResponseEntity<AccountResponseDto> addAccount(@RequestBody AccountRequestDto accountDto) {
+	public ResponseEntity<AccountResponseDto> addAccount(@Valid @RequestBody AccountRequestDto accountDto) {
 		AccountResponseDto saved = accountService.addAccount(accountDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
@@ -57,7 +59,7 @@ public class AccountController {
 	@PutMapping(path = "/{accountNumber}")
 	@PreAuthorize("hasRole('MANAGER')")
 	public ResponseEntity<AccountResponseDto> updateById(@PathVariable(name = "accountNumber") String accountNumber,
-			@RequestBody AccountRequestDto accountDto) {
+			@Valid @RequestBody AccountRequestDto accountDto) {
 
 		AccountResponseDto updated = accountService.updateAccount(accountNumber, accountDto);
 		return ResponseEntity.status(HttpStatus.OK).body(updated);

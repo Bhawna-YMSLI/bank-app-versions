@@ -87,10 +87,6 @@ public class Transaction {
 		return amount;
 	}
 
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
-
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -107,9 +103,9 @@ public class Transaction {
 		return performedByClerkId;
 	}
 
-	public void setPerformedByClerkId(String performedByClerkId) {
-		this.performedByClerkId = performedByClerkId;
-	}
+//	public void setPerformedByClerkId(String performedByClerkId) {
+//		this.performedByClerkId = performedByClerkId;
+//	}
 
 	public String getApprovedByManagerId() {
 		return approvedByManagerId;

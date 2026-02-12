@@ -61,15 +61,15 @@ public class TransactionController {
 
 	@PutMapping("/{transactionId}/approve")
 	@PreAuthorize("hasRole('MANAGER')")
-	public ResponseEntity<Void> approve(@PathVariable String transactionId) {
-		transactionService.approveTransaction(transactionId, "approved by");
+	public ResponseEntity<Void> approve(@PathVariable String transactionId, Authentication authentication) {
+		transactionService.approveTransaction(transactionId, authentication.getName());
 		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/{transactionId}/reject")
 	@PreAuthorize("hasRole('MANAGER')")
-	public ResponseEntity<Void> reject(@PathVariable String transactionId) {
-		transactionService.rejectTransaction(transactionId, "approved by");
+	public ResponseEntity<Void> reject(@PathVariable String transactionId, Authentication authentication) {
+		transactionService.rejectTransaction(transactionId, authentication.getName());
 		return ResponseEntity.noContent().build();
 	}
 

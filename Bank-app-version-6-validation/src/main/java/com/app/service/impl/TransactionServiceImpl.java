@@ -44,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
 		// create transaction
 
 		Transaction txn = new Transaction(account, amount, TransactionType.CREDIT, TransactionStatus.COMPLETED,
-				"CLERK_ID");
+				performedBy);
 		txn.setTransactionId("TX" + UUID.randomUUID().toString().replace("-", "").substring(0, 8));
 
 		transactionDao.save(txn);
@@ -70,7 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 		}
 
-		Transaction txn = new Transaction(account, amount, TransactionType.DEBIT, status, "performedBy");
+		Transaction txn = new Transaction(account, amount, TransactionType.DEBIT, status, performedBy);
 		txn.setTransactionId("TX" + UUID.randomUUID().toString().replace("-", "").substring(0, 8));
 
 		transactionDao.save(txn);
@@ -129,7 +129,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 
 		transaction.setTransactionStatus(TransactionStatus.REJECTED);
-		transaction.setApprovedByManagerId("approvedBy");
+		transaction.setApprovedByManagerId(approvedBy);
 	}
 
 	@Override

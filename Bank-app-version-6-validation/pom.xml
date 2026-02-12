@@ -8,7 +8,7 @@
 		<version>3.5.10</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.app-v5</groupId>
+	<groupId>com.app-v6</groupId>
 	<artifactId>bank-app</artifactId>
 	<version>0.0.1</version>
 	<name>Bank-app-version1</name>

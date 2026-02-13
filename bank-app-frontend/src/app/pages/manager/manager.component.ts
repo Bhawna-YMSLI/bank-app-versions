@@ -8,6 +8,8 @@ import { BankApiService } from '../../core/bank-api.service';
 import { Account, ClerkUser, Transaction } from '../../shared/models/types';
 import { toUserMessage } from '../../shared/utils/error-message';
 
+type ManagerSection = 'accounts' | 'approvals' | 'lookup' | 'history' | 'clerks';
+
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
@@ -26,6 +28,7 @@ export class ManagerComponent implements OnInit {
   success = '';
   loading = false;
   readonly disablingClerks = new Set<string>();
+  activeSection: ManagerSection = 'accounts';
 
   private setError(error: unknown, fallback: string): void {
     this.error = toUserMessage(error, fallback);
@@ -43,6 +46,10 @@ export class ManagerComponent implements OnInit {
 
   isClerkBeingDisabled(username: string): boolean {
     return this.disablingClerks.has(this.getClerkKey(username));
+  }
+
+  setSection(section: ManagerSection): void {
+    this.activeSection = section;
   }
 
   get activeClerksCount(): number {

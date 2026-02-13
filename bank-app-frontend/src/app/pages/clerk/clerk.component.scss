@@ -46,6 +46,12 @@ th {
   font-size: 0.95rem;
 }
 
+.empty {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+}
+
 @media (max-width: 1024px) {
   .grid-3 {
     grid-template-columns: 1fr;

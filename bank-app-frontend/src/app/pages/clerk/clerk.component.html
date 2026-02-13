@@ -74,6 +74,7 @@
         <td>{{ transaction.approvedBy || '-' }}</td>
         <td>{{ transaction.createdAt | date : 'short' }}</td>
       </tr>
+      <tr *ngIf="history.length === 0"><td colspan="8" class="empty">No transactions available for selected account.</td></tr>
     </table>
   </section>
 
@@ -86,6 +87,7 @@
         <td>{{ account.name }}</td>
         <td>{{ account.balance | currency : 'INR' }}</td>
       </tr>
+      <tr *ngIf="accounts.length === 0"><td colspan="3" class="empty">No accounts available.</td></tr>
     </table>
   </section>
 

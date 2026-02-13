@@ -88,6 +88,30 @@ th {
   gap: 0.5rem;
 }
 
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge-live {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-disabled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.empty {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+}
+
 .loading {
   margin: 0;
   color: #334155;

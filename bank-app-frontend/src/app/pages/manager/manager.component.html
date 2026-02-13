@@ -4,7 +4,7 @@
   <p class="loading" *ngIf="loading">Loading dashboard...</p>
 
   <section class="card section-card">
-    <h3>Summary</h3>
+    <h3>Portfolio Summary</h3>
     <div class="summary-grid">
       <div class="summary-item">
         <span>Total Accounts</span>
@@ -22,7 +22,7 @@
   </section>
 
   <section class="card section-card">
-    <h3>Account Management</h3>
+    <h3>Account Operations</h3>
 
     <div class="subsection">
       <h4>Create Account</h4>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="subsection">
-      <h4>Account List</h4>
+      <h4>All Accounts</h4>
       <table>
         <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
         <tr *ngFor="let account of accounts">
@@ -79,6 +79,7 @@
           <td>{{ account.name }}</td>
           <td>{{ account.balance | currency : 'INR' }}</td>
         </tr>
+        <tr *ngIf="accounts.length === 0"><td colspan="3" class="empty">No accounts available.</td></tr>
       </table>
     </div>
   </section>
@@ -96,11 +97,12 @@
       <tr *ngFor="let clerk of clerks">
         <td>{{ clerk.username }}</td>
         <td>{{ clerk.role }}</td>
-        <td>{{ clerk.active ? 'Active' : 'Disabled' }}</td>
+        <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
         <td>
           <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
         </td>
       </tr>
+      <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
     </table>
   </section>
 
@@ -120,6 +122,7 @@
           <button class="btn btn-danger-outline" (click)="reject(transaction.transactionId)">Reject</button>
         </td>
       </tr>
+      <tr *ngIf="pendingTransactions.length === 0"><td colspan="7" class="empty">No pending withdrawal approvals.</td></tr>
     </table>
   </section>
 
@@ -165,6 +168,7 @@
         <td>{{ transaction.approvedBy || '-' }}</td>
         <td>{{ transaction.createdAt | date : 'medium' }}</td>
       </tr>
+      <tr *ngIf="history.length === 0"><td colspan="8" class="empty">No transactions available for selected account.</td></tr>
     </table>
   </section>
 

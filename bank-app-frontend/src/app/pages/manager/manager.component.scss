@@ -97,12 +97,6 @@ h4 {
   margin-top: 0.9rem;
 }
 
-.two-col {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(320px, 1fr));
-  gap: 1rem;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -170,7 +164,6 @@ th {
 
 @media (max-width: 1150px) {
   .operations-grid,
-  .two-col,
   .form-grid,
   .form-grid.wide {
     grid-template-columns: 1fr;

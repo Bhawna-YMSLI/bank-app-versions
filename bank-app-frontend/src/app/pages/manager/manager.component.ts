@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { HeaderComponent } from '../../layout/header.component';
 import { BankApiService } from '../../core/bank-api.service';
 import { Account, ClerkUser, Transaction } from '../../shared/models/types';
@@ -34,6 +35,14 @@ export class ManagerComponent implements OnInit {
   private setSuccess(message: string): void {
     this.success = message;
     this.error = '';
+  }
+
+  private getClerkKey(username: string): string {
+    return username.trim().toLowerCase();
+  }
+
+  isClerkBeingDisabled(username: string): boolean {
+    return this.disablingClerks.has(this.getClerkKey(username));
   }
 
   get activeClerksCount(): number {
@@ -195,22 +204,30 @@ export class ManagerComponent implements OnInit {
 
   disableClerk(username: string): void {
     const normalizedUsername = username.trim();
+    const clerkKey = this.getClerkKey(normalizedUsername);
 
-    if (!normalizedUsername || this.disablingClerks.has(normalizedUsername)) {
+    if (!clerkKey || this.disablingClerks.has(clerkKey)) {
       return;
     }
 
-    this.disablingClerks.add(normalizedUsername);
+    this.disablingClerks.add(clerkKey);
 
     this.api.disableClerk(normalizedUsername)
-      .pipe(finalize(() => this.disablingClerks.delete(normalizedUsername)))
+      .pipe(
+        switchMap(() => this.api.getClerks()),
+        finalize(() => this.disablingClerks.delete(clerkKey))
+      )
       .subscribe({
-        next: () => {
-          this.clerks = this.clerks.map((clerk) =>
-            clerk.username.toLowerCase() === normalizedUsername.toLowerCase() ? { ...clerk, active: false } : clerk
-          );
+        next: (clerks) => {
+          this.clerks = clerks;
+          const updatedClerk = clerks.find((clerk) => this.getClerkKey(clerk.username) === clerkKey);
+
+          if (updatedClerk?.active) {
+            this.setError(new Error('Clerk status is still active after disable attempt.'), `Disable request was sent for ${normalizedUsername}, but the clerk is still active. Please verify backend clerk-status update mapping.`);
+            return;
+          }
+
           this.setSuccess(`Clerk ${normalizedUsername} disabled successfully.`);
-          this.refreshAll();
         },
         error: (error: unknown) => {
           this.setError(error, 'Unable to disable clerk.');

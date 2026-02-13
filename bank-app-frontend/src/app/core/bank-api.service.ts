@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
 import {
   Account,
   AccountRequest,
@@ -71,13 +72,26 @@ export class BankApiService {
   }
 
   disableClerk(rawUsername: string) {
-    const username = encodeURIComponent(rawUsername.trim());
+    const trimmed = rawUsername.trim();
 
-    return this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}).pipe(
-      catchError(() => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {})),
-      catchError(() => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false })),
-      catchError(() => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false }))
-    );
+    if (!trimmed) {
+      return throwError(() => new Error('Username is required to disable clerk.'));
+    }
+
+    const username = encodeURIComponent(trimmed);
+
+    const attempts: Array<() => Observable<void>> = [
+      () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}),
+      () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}),
+      () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false }),
+      () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false }),
+      () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}`, { active: false }),
+      () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}`, { isActive: false }),
+      () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}`, { active: false }),
+      () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}`, { isActive: false })
+    ];
+
+    return this.tryDisableWithFallback(attempts, 0);
   }
 
   deposit(payload: TransactionRequest) {
@@ -88,14 +102,40 @@ export class BankApiService {
     return this.http.put<void>(`${this.baseUrl}/transactions/withdraw`, payload);
   }
 
+
+
+  private tryDisableWithFallback(attempts: Array<() => Observable<void>>, index: number): Observable<void> {
+    if (index >= attempts.length) {
+      return throwError(() => new Error('No compatible disable clerk endpoint is available.'));
+    }
+
+    return attempts[index]().pipe(
+      catchError((error) => {
+        const status = (error as { status?: number })?.status;
+
+        if (status === 401 || status === 403) {
+          return throwError(() => error);
+        }
+
+        return this.tryDisableWithFallback(attempts, index + 1);
+      })
+    );
+  }
+
   private toClerkUser(user: ClerkUserResponse): ClerkUser {
-    const normalized = user as ClerkUserResponse & { active?: boolean; status?: string };
+    const normalized = user as ClerkUserResponse;
     const normalizedStatus = normalized.status?.toLowerCase();
+
+    const isActiveByStatus = normalizedStatus
+      ? !['disabled', 'inactive', 'blocked'].includes(normalizedStatus)
+      : undefined;
+
+    const isActiveByDisabledFlag = normalized.disabled === undefined ? undefined : !normalized.disabled;
 
     return {
       username: user.username,
       role: user.role,
-      active: normalized.active ?? user.isActive ?? (normalizedStatus ? normalizedStatus !== 'disabled' : false)
+      active: normalized.active ?? normalized.isActive ?? normalized.enabled ?? isActiveByDisabledFlag ?? isActiveByStatus ?? false
     };
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import {
   Account,
   AccountRequest,
@@ -70,8 +70,14 @@ export class BankApiService {
     );
   }
 
-  disableClerk(username: string) {
-    return this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {});
+  disableClerk(rawUsername: string) {
+    const username = encodeURIComponent(rawUsername.trim());
+
+    return this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}).pipe(
+      catchError(() => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {})),
+      catchError(() => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false })),
+      catchError(() => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false }))
+    );
   }
 
   deposit(payload: TransactionRequest) {
@@ -83,12 +89,13 @@ export class BankApiService {
   }
 
   private toClerkUser(user: ClerkUserResponse): ClerkUser {
-    const normalized = user as ClerkUserResponse & { active?: boolean };
+    const normalized = user as ClerkUserResponse & { active?: boolean; status?: string };
+    const normalizedStatus = normalized.status?.toLowerCase();
 
     return {
       username: user.username,
       role: user.role,
-      active: normalized.active ?? user.isActive ?? false
+      active: normalized.active ?? user.isActive ?? (normalizedStatus ? normalizedStatus !== 'disabled' : false)
     };
   }
 }

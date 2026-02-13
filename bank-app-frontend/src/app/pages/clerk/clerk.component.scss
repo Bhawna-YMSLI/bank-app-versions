@@ -1,23 +1,56 @@
 .page {
   display: grid;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
-.grid {
+.section-card {
+  padding: 1.5rem;
+}
+
+h3 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+}
+
+.grid-3 {
   display: grid;
-  gap: 0.5rem;
-  max-width: 520px;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.action-group {
+  display: flex;
+  gap: 0.55rem;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 0.75rem;
 }
 
 th,
 td {
-  padding: 0.4rem;
+  padding: 0.65rem;
   border-bottom: 1px solid #e2e8f0;
   text-align: left;
+}
+
+th {
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .action-group {
+    flex-wrap: wrap;
+  }
 }

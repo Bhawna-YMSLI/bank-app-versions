@@ -3,38 +3,91 @@
 <main class="page">
   <p class="loading" *ngIf="loading">Loading dashboard...</p>
 
-  <section class="card">
+  <section class="card section-card">
     <h3>Summary</h3>
-    <p>Total Accounts: <strong>{{ accounts.length }}</strong></p>
-    <p>Pending Withdrawals: <strong>{{ pendingTransactions.length }}</strong></p>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span>Total Accounts</span>
+        <strong>{{ accounts.length }}</strong>
+      </div>
+      <div class="summary-item">
+        <span>Pending Withdrawals</span>
+        <strong>{{ pendingTransactions.length }}</strong>
+      </div>
+      <div class="summary-item">
+        <span>Active Clerks</span>
+        <strong>{{ activeClerksCount }}</strong>
+      </div>
+    </div>
   </section>
 
-  <section class="card">
-    <h3>Create Account</h3>
-    <form [formGroup]="accountForm" (ngSubmit)="createAccount()" class="grid-2">
-      <input formControlName="name" placeholder="Customer name" />
-      <input type="number" formControlName="balance" placeholder="Opening balance" />
-      <button class="btn btn-primary" [disabled]="accountForm.invalid">Create</button>
-    </form>
+  <section class="card section-card">
+    <h3>Account Management</h3>
+
+    <div class="subsection">
+      <h4>Create Account</h4>
+      <form [formGroup]="accountForm" (ngSubmit)="createAccount()" class="grid-3">
+        <input formControlName="name" placeholder="Customer name" />
+        <input type="number" formControlName="balance" placeholder="Opening balance" />
+        <button class="btn btn-primary" [disabled]="accountForm.invalid">Create</button>
+      </form>
+    </div>
+
+    <div class="subsection">
+      <h4>Get Account By Number</h4>
+      <form [formGroup]="accountSearchForm" (ngSubmit)="searchAccount()" class="grid-3">
+        <input formControlName="accountNumber" placeholder="Account number" />
+        <span></span>
+        <button class="btn btn-secondary" [disabled]="accountSearchForm.invalid">Load Account</button>
+      </form>
+
+      <table *ngIf="selectedAccount">
+        <tr><th>Account Number</th><th>Name</th><th>Balance</th></tr>
+        <tr>
+          <td>{{ selectedAccount.accountNumber }}</td>
+          <td>{{ selectedAccount.name }}</td>
+          <td>{{ selectedAccount.balance | currency : 'INR' }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <h4>Update Account</h4>
+      <form [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="grid-4">
+        <input formControlName="accountNumber" placeholder="Account number" />
+        <input formControlName="name" placeholder="Updated customer name" />
+        <input type="number" formControlName="balance" placeholder="Updated balance" />
+        <button class="btn btn-secondary" [disabled]="accountUpdateForm.invalid">Update</button>
+      </form>
+    </div>
+
+    <div class="subsection">
+      <h4>Delete Account</h4>
+      <form [formGroup]="accountDeleteForm" (ngSubmit)="deleteAccount()" class="grid-3">
+        <input formControlName="accountNumber" placeholder="Account number" />
+        <span></span>
+        <button class="btn btn-danger" [disabled]="accountDeleteForm.invalid">Delete</button>
+      </form>
+    </div>
+
+    <div class="subsection">
+      <h4>Account List</h4>
+      <table>
+        <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
+        <tr *ngFor="let account of accounts">
+          <td>{{ account.accountNumber }}</td>
+          <td>{{ account.name }}</td>
+          <td>{{ account.balance | currency : 'INR' }}</td>
+        </tr>
+      </table>
+    </div>
   </section>
 
-  <section class="card">
-    <h3>Accounts</h3>
-    <table>
-      <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
-      <tr *ngFor="let account of accounts">
-        <td>{{ account.accountNumber }}</td>
-        <td>{{ account.name }}</td>
-        <td>{{ account.balance | currency : 'INR' }}</td>
-      </tr>
-    </table>
-  </section>
-
-  <section class="card">
+  <section class="card section-card">
     <h3>Clerk User Management</h3>
-    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="grid-2">
-      <input formControlName="username" placeholder="clerk username" />
-      <input formControlName="password" type="password" placeholder="minimum 8 characters" />
+    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="grid-3">
+      <input formControlName="username" placeholder="Clerk username" />
+      <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
       <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
     </form>
 
@@ -50,7 +103,7 @@
     </table>
   </section>
 
-  <section class="card">
+  <section class="card section-card">
     <h3>Withdrawal Approvals</h3>
     <table>
       <tr><th>ID</th><th>Account</th><th>Amount</th><th>By</th><th>Action</th></tr>
@@ -59,19 +112,42 @@
         <td>{{ transaction.accountNumber }}</td>
         <td>{{ transaction.amount | currency : 'INR' }}</td>
         <td>{{ transaction.performedBy }}</td>
-        <td>
+        <td class="action-group">
           <button class="btn btn-primary" (click)="approve(transaction.transactionId)">Approve</button>
-          <button class="btn" (click)="reject(transaction.transactionId)">Reject</button>
+          <button class="btn btn-danger-outline" (click)="reject(transaction.transactionId)">Reject</button>
         </td>
       </tr>
     </table>
   </section>
 
-  <section class="card">
+  <section class="card section-card">
+    <h3>Transaction Lookup</h3>
+    <form [formGroup]="transactionLookupForm" (ngSubmit)="lookupTransactionById()" class="grid-3">
+      <input formControlName="transactionId" placeholder="Transaction ID" />
+      <span></span>
+      <button class="btn btn-secondary" [disabled]="transactionLookupForm.invalid">Load Transaction</button>
+    </form>
+
+    <table *ngIf="selectedTransaction">
+      <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>By</th><th>Approved By</th></tr>
+      <tr>
+        <td>{{ selectedTransaction.transactionId }}</td>
+        <td>{{ selectedTransaction.accountNumber }}</td>
+        <td>{{ selectedTransaction.transactionType }}</td>
+        <td>{{ selectedTransaction.amount | currency : 'INR' }}</td>
+        <td>{{ selectedTransaction.status }}</td>
+        <td>{{ selectedTransaction.performedBy }}</td>
+        <td>{{ selectedTransaction.approvedBy || '-' }}</td>
+      </tr>
+    </table>
+  </section>
+
+  <section class="card section-card">
     <h3>Transaction History (Read-only)</h3>
-    <form [formGroup]="historyForm" (ngSubmit)="loadHistory()" class="grid-2">
+    <form [formGroup]="historyForm" (ngSubmit)="loadHistory()" class="grid-3">
       <input formControlName="accountNumber" placeholder="Enter account number" />
-      <button class="btn btn-secondary">View History</button>
+      <span></span>
+      <button class="btn btn-secondary" [disabled]="historyForm.invalid">View History</button>
     </form>
 
     <table>

@@ -22,12 +22,28 @@ export class BankApiService {
     return this.http.get<Account[]>(`${this.baseUrl}/accounts`);
   }
 
+  getAccountByNumber(accountNumber: string) {
+    return this.http.get<Account>(`${this.baseUrl}/accounts/${accountNumber}`);
+  }
+
   createAccount(payload: AccountRequest) {
     return this.http.post<Account>(`${this.baseUrl}/accounts`, payload);
   }
 
+  updateAccount(accountNumber: string, payload: AccountRequest) {
+    return this.http.put<Account>(`${this.baseUrl}/accounts/${accountNumber}`, payload);
+  }
+
+  deleteAccount(accountNumber: string) {
+    return this.http.delete<void>(`${this.baseUrl}/accounts/${accountNumber}`);
+  }
+
   getPendingTransactions() {
     return this.http.get<Transaction[]>(`${this.baseUrl}/transactions/pending`);
+  }
+
+  getTransactionById(transactionId: string) {
+    return this.http.get<Transaction>(`${this.baseUrl}/transactions/${transactionId}`);
   }
 
   approveWithdrawal(transactionId: string) {

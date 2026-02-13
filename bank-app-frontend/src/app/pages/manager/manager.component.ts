@@ -18,13 +18,33 @@ export class ManagerComponent implements OnInit {
   clerks: ClerkUser[] = [];
   pendingTransactions: Transaction[] = [];
   history: Transaction[] = [];
+  selectedAccount: Account | null = null;
+  selectedTransaction: Transaction | null = null;
   error = '';
   success = '';
   loading = false;
 
+  get activeClerksCount(): number {
+    return this.clerks.filter((clerk) => clerk.active).length;
+  }
+
   readonly accountForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     balance: [0, [Validators.required, Validators.min(0)]]
+  });
+
+  readonly accountSearchForm = this.fb.nonNullable.group({
+    accountNumber: ['', Validators.required]
+  });
+
+  readonly accountUpdateForm = this.fb.nonNullable.group({
+    accountNumber: ['', Validators.required],
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    balance: [0, [Validators.required, Validators.min(0)]]
+  });
+
+  readonly accountDeleteForm = this.fb.nonNullable.group({
+    accountNumber: ['', Validators.required]
   });
 
   readonly clerkForm = this.fb.nonNullable.group({
@@ -34,6 +54,10 @@ export class ManagerComponent implements OnInit {
 
   readonly historyForm = this.fb.nonNullable.group({
     accountNumber: ['', Validators.required]
+  });
+
+  readonly transactionLookupForm = this.fb.nonNullable.group({
+    transactionId: ['', Validators.required]
   });
 
   constructor(private fb: FormBuilder, private api: BankApiService) {}
@@ -84,6 +108,65 @@ export class ManagerComponent implements OnInit {
     });
   }
 
+  searchAccount(): void {
+    if (this.accountSearchForm.invalid) {
+      this.accountSearchForm.markAllAsTouched();
+      return;
+    }
+
+    const { accountNumber } = this.accountSearchForm.getRawValue();
+    this.api.getAccountByNumber(accountNumber).subscribe({
+      next: (account) => {
+        this.selectedAccount = account;
+        this.success = `Account ${account.accountNumber} loaded.`;
+        this.error = '';
+      },
+      error: (error: unknown) => {
+        this.selectedAccount = null;
+        this.error = toUserMessage(error, 'Unable to load account details.');
+      }
+    });
+  }
+
+  updateAccount(): void {
+    if (this.accountUpdateForm.invalid) {
+      this.accountUpdateForm.markAllAsTouched();
+      return;
+    }
+
+    const { accountNumber, name, balance } = this.accountUpdateForm.getRawValue();
+    this.api.updateAccount(accountNumber, { name, balance }).subscribe({
+      next: () => {
+        this.success = 'Account updated successfully.';
+        this.error = '';
+        this.refreshAll();
+      },
+      error: (error: unknown) => {
+        this.error = toUserMessage(error, 'Unable to update account.');
+      }
+    });
+  }
+
+  deleteAccount(): void {
+    if (this.accountDeleteForm.invalid) {
+      this.accountDeleteForm.markAllAsTouched();
+      return;
+    }
+
+    const { accountNumber } = this.accountDeleteForm.getRawValue();
+    this.api.deleteAccount(accountNumber).subscribe({
+      next: () => {
+        this.success = `Account ${accountNumber} deleted successfully.`;
+        this.error = '';
+        this.accountDeleteForm.reset({ accountNumber: '' });
+        this.refreshAll();
+      },
+      error: (error: unknown) => {
+        this.error = toUserMessage(error, 'Unable to delete account.');
+      }
+    });
+  }
+
   createClerk(): void {
     if (this.clerkForm.invalid) {
       this.clerkForm.markAllAsTouched();
@@ -120,6 +203,7 @@ export class ManagerComponent implements OnInit {
     this.api.approveWithdrawal(transactionId).subscribe({
       next: () => {
         this.success = 'Withdrawal approved.';
+        this.error = '';
         this.refreshAll();
       },
       error: (error: unknown) => {
@@ -132,10 +216,31 @@ export class ManagerComponent implements OnInit {
     this.api.rejectWithdrawal(transactionId).subscribe({
       next: () => {
         this.success = 'Withdrawal rejected.';
+        this.error = '';
         this.refreshAll();
       },
       error: (error: unknown) => {
         this.error = toUserMessage(error, 'Unable to reject withdrawal.');
+      }
+    });
+  }
+
+  lookupTransactionById(): void {
+    if (this.transactionLookupForm.invalid) {
+      this.transactionLookupForm.markAllAsTouched();
+      return;
+    }
+
+    const { transactionId } = this.transactionLookupForm.getRawValue();
+    this.api.getTransactionById(transactionId).subscribe({
+      next: (transaction) => {
+        this.selectedTransaction = transaction;
+        this.success = `Transaction ${transactionId} loaded.`;
+        this.error = '';
+      },
+      error: (error: unknown) => {
+        this.selectedTransaction = null;
+        this.error = toUserMessage(error, 'Unable to load transaction details.');
       }
     });
   }
@@ -146,7 +251,8 @@ export class ManagerComponent implements OnInit {
       return;
     }
 
-    this.api.getTransactionsByAccount(this.historyForm.getRawValue().accountNumber).subscribe({
+    const { accountNumber } = this.historyForm.getRawValue();
+    this.api.getTransactionsByAccount(accountNumber).subscribe({
       next: (transactions) => {
         this.history = transactions;
         this.error = '';

@@ -2,7 +2,27 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  background: #013980;
+  gap: 1rem;
+  padding: 1.15rem 1.5rem;
+  background: #0a3f8f;
   color: #fff;
+  box-shadow: 0 4px 10px rgba(8, 32, 74, 0.25);
+}
+
+h2 {
+  margin: 0;
+  font-size: 2.1rem;
+}
+
+small {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

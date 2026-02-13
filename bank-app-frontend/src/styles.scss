@@ -1,7 +1,7 @@
 :root {
   font-family: Inter, Arial, sans-serif;
   color: #0b1f3a;
-  background: #f6f8fc;
+  background: #f5f7fc;
 }
 
 * {
@@ -10,47 +10,84 @@
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, #f6f8fc 0%, #eef2fb 100%);
+  background: linear-gradient(180deg, #f5f7fc 0%, #eef3ff 100%);
+  color: #0f2747;
 }
 
 .card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  border-radius: 16px;
+  border: 1px solid #dbe5f4;
+  box-shadow: 0 10px 24px rgba(15, 39, 71, 0.08);
   padding: 1rem;
 }
 
 .btn {
   border: none;
-  border-radius: 8px;
-  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  padding: 0.62rem 1rem;
   font-weight: 600;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
 }
 
 .btn-primary {
-  background: #014aa5;
+  background: #0a4ca5;
   color: #fff;
 }
 
 .btn-secondary {
   background: #dde8ff;
-  color: #013980;
+  color: #0a4ca5;
 }
 
-input, select {
+.btn-danger {
+  background: #b42318;
+  color: #fff;
+}
+
+.btn-danger-outline {
+  background: #fff;
+  border: 1px solid #ef4444;
+  color: #b42318;
+}
+
+input,
+select {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 0.6rem;
+  border: 1px solid #c4d2e6;
+  border-radius: 10px;
+  padding: 0.68rem 0.75rem;
+  font-size: 1rem;
+  color: #102a43;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #c2d6ff;
+  border-color: #7ba5ec;
 }
 
 .error {
   color: #b91c1c;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .success {
   color: #047857;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
 }

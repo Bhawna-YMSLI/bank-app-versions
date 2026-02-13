@@ -1,11 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { HeaderComponent } from '../../layout/header.component';
 import { BankApiService } from '../../core/bank-api.service';
 import { Account, ClerkUser, Transaction } from '../../shared/models/types';
 import { toUserMessage } from '../../shared/utils/error-message';
+
+type ManagerSection = 'accounts' | 'approvals' | 'lookup' | 'history' | 'clerks';
+type AccountActionMode = 'list' | 'view' | 'update';
 
 @Component({
   standalone: true,
@@ -14,6 +18,7 @@ import { toUserMessage } from '../../shared/utils/error-message';
   styleUrl: './manager.component.scss'
 })
 export class ManagerComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   accounts: Account[] = [];
   clerks: ClerkUser[] = [];
   pendingTransactions: Transaction[] = [];
@@ -23,6 +28,32 @@ export class ManagerComponent implements OnInit {
   error = '';
   success = '';
   loading = false;
+  readonly disablingClerks = new Set<string>();
+  activeSection: ManagerSection = 'accounts';
+  accountActionMode: AccountActionMode = 'list';
+
+  private setError(error: unknown, fallback: string): void {
+    this.error = toUserMessage(error, fallback);
+    this.success = '';
+  }
+
+  private setSuccess(message: string): void {
+    this.success = message;
+    this.error = '';
+  }
+
+  private getClerkKey(username: string): string {
+    return username.trim().toLowerCase();
+  }
+
+  isClerkBeingDisabled(username: string): boolean {
+    return this.disablingClerks.has(this.getClerkKey(username));
+  }
+
+  setSection(section: ManagerSection): void {
+    this.activeSection = section;
+  }
+
 
   get activeClerksCount(): number {
     return this.clerks.filter((clerk) => clerk.active).length;
@@ -33,9 +64,6 @@ export class ManagerComponent implements OnInit {
     balance: [0, [Validators.required, Validators.min(0)]]
   });
 
-  readonly accountSearchForm = this.fb.nonNullable.group({
-    accountNumber: ['', Validators.required]
-  });
 
   readonly accountUpdateForm = this.fb.nonNullable.group({
     accountNumber: ['', Validators.required],
@@ -43,9 +71,6 @@ export class ManagerComponent implements OnInit {
     balance: [0, [Validators.required, Validators.min(0)]]
   });
 
-  readonly accountDeleteForm = this.fb.nonNullable.group({
-    accountNumber: ['', Validators.required]
-  });
 
   readonly clerkForm = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
@@ -60,7 +85,7 @@ export class ManagerComponent implements OnInit {
     transactionId: ['', Validators.required]
   });
 
-  constructor(private fb: FormBuilder, private api: BankApiService) {}
+  constructor(private api: BankApiService) {}
 
   ngOnInit(): void {
     this.refreshAll();
@@ -81,7 +106,7 @@ export class ManagerComponent implements OnInit {
         this.pendingTransactions = response.pendingTransactions;
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to load dashboard data.');
+        this.setError(error, 'Unable to load dashboard data.');
       },
       complete: () => {
         this.loading = false;
@@ -97,33 +122,54 @@ export class ManagerComponent implements OnInit {
 
     this.api.createAccount(this.accountForm.getRawValue()).subscribe({
       next: () => {
-        this.success = 'Account created successfully.';
-        this.error = '';
+        this.setSuccess('Account created successfully.');
         this.accountForm.reset({ name: '', balance: 0 });
         this.refreshAll();
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to create account.');
+        this.setError(error, 'Unable to create account.');
       }
     });
   }
 
-  searchAccount(): void {
-    if (this.accountSearchForm.invalid) {
-      this.accountSearchForm.markAllAsTouched();
+  viewAccountFromList(account: Account): void {
+    this.selectedAccount = account;
+    this.accountActionMode = 'view';
+    this.setSuccess(`Account ${account.accountNumber} loaded.`);
+  }
+
+  beginUpdateAccount(account: Account): void {
+    this.accountActionMode = 'update';
+    this.accountUpdateForm.setValue({
+      accountNumber: account.accountNumber,
+      name: account.name,
+      balance: account.balance
+    });
+    this.setSuccess(`Update form opened for account ${account.accountNumber}.`);
+  }
+
+  closeAccountActionPanel(): void {
+    this.accountActionMode = 'list';
+    this.accountUpdateForm.reset({ accountNumber: '', name: '', balance: 0 });
+  }
+
+
+  deleteAccountFromList(account: Account): void {
+    const confirmed = typeof globalThis.confirm === 'function'
+      ? globalThis.confirm(`Delete account ${account.accountNumber}? This action cannot be undone.`)
+      : true;
+
+    if (!confirmed) {
       return;
     }
 
-    const { accountNumber } = this.accountSearchForm.getRawValue();
-    this.api.getAccountByNumber(accountNumber).subscribe({
-      next: (account) => {
-        this.selectedAccount = account;
-        this.success = `Account ${account.accountNumber} loaded.`;
-        this.error = '';
+    this.api.deleteAccount(account.accountNumber).subscribe({
+      next: () => {
+        this.setSuccess(`Account ${account.accountNumber} deleted successfully.`);
+        this.refreshAll();
       },
       error: (error: unknown) => {
-        this.selectedAccount = null;
-        this.error = toUserMessage(error, 'Unable to load account details.');
+        this.setError(error, 'Unable to delete account.');
       }
     });
   }
@@ -137,32 +183,12 @@ export class ManagerComponent implements OnInit {
     const { accountNumber, name, balance } = this.accountUpdateForm.getRawValue();
     this.api.updateAccount(accountNumber, { name, balance }).subscribe({
       next: () => {
-        this.success = 'Account updated successfully.';
-        this.error = '';
+        this.setSuccess('Account updated successfully.');
+        this.accountActionMode = 'list';
         this.refreshAll();
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to update account.');
-      }
-    });
-  }
-
-  deleteAccount(): void {
-    if (this.accountDeleteForm.invalid) {
-      this.accountDeleteForm.markAllAsTouched();
-      return;
-    }
-
-    const { accountNumber } = this.accountDeleteForm.getRawValue();
-    this.api.deleteAccount(accountNumber).subscribe({
-      next: () => {
-        this.success = `Account ${accountNumber} deleted successfully.`;
-        this.error = '';
-        this.accountDeleteForm.reset({ accountNumber: '' });
-        this.refreshAll();
-      },
-      error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to delete account.');
+        this.setError(error, 'Unable to update account.');
       }
     });
   }
@@ -175,39 +201,62 @@ export class ManagerComponent implements OnInit {
 
     this.api.createClerk(this.clerkForm.getRawValue()).subscribe({
       next: () => {
-        this.success = 'Clerk created successfully.';
-        this.error = '';
+        this.setSuccess('Clerk created successfully.');
         this.clerkForm.reset({ username: '', password: '' });
         this.refreshAll();
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to create clerk.');
+        this.setError(error, 'Unable to create clerk.');
       }
     });
   }
 
   disableClerk(username: string): void {
-    this.api.disableClerk(username).subscribe({
-      next: () => {
-        this.success = 'Clerk disabled successfully.';
-        this.error = '';
-        this.refreshAll();
-      },
-      error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to disable clerk.');
-      }
-    });
+    const normalizedUsername = username.trim();
+    const clerkKey = this.getClerkKey(normalizedUsername);
+
+    if (!clerkKey || this.disablingClerks.has(clerkKey)) {
+      return;
+    }
+
+    this.disablingClerks.add(clerkKey);
+
+    this.api.disableClerk(normalizedUsername)
+      .pipe(
+        switchMap(() => {
+          this.clerks = this.clerks.map((clerk) =>
+            this.getClerkKey(clerk.username) === clerkKey ? { ...clerk, active: false } : clerk
+          );
+          return this.api.getClerks();
+        }),
+        finalize(() => this.disablingClerks.delete(clerkKey))
+      )
+      .subscribe({
+        next: (clerks) => {
+          const updatedClerk = clerks.find((clerk) => this.getClerkKey(clerk.username) === clerkKey);
+
+          if (updatedClerk) {
+            this.clerks = clerks.map((clerk) =>
+              this.getClerkKey(clerk.username) === clerkKey ? { ...clerk, active: false } : clerk
+            );
+          }
+
+          this.setSuccess(`Clerk ${normalizedUsername} disabled successfully.`);
+        },
+        error: (error: unknown) => {
+          this.setError(error, 'Unable to disable clerk.');
+        }
+      });
   }
 
   approve(transactionId: string): void {
     this.api.approveWithdrawal(transactionId).subscribe({
       next: () => {
-        this.success = 'Withdrawal approved.';
-        this.error = '';
+        this.setSuccess('Withdrawal approved.');
         this.refreshAll();
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to approve withdrawal.');
+        this.setError(error, 'Unable to approve withdrawal.');
       }
     });
   }
@@ -215,12 +264,11 @@ export class ManagerComponent implements OnInit {
   reject(transactionId: string): void {
     this.api.rejectWithdrawal(transactionId).subscribe({
       next: () => {
-        this.success = 'Withdrawal rejected.';
-        this.error = '';
+        this.setSuccess('Withdrawal rejected.');
         this.refreshAll();
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to reject withdrawal.');
+        this.setError(error, 'Unable to reject withdrawal.');
       }
     });
   }
@@ -235,12 +283,11 @@ export class ManagerComponent implements OnInit {
     this.api.getTransactionById(transactionId).subscribe({
       next: (transaction) => {
         this.selectedTransaction = transaction;
-        this.success = `Transaction ${transactionId} loaded.`;
-        this.error = '';
+        this.setSuccess(`Transaction ${transactionId} loaded.`);
       },
       error: (error: unknown) => {
         this.selectedTransaction = null;
-        this.error = toUserMessage(error, 'Unable to load transaction details.');
+        this.setError(error, 'Unable to load transaction details.');
       }
     });
   }
@@ -258,7 +305,7 @@ export class ManagerComponent implements OnInit {
         this.error = '';
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to fetch transaction history.');
+        this.setError(error, 'Unable to fetch transaction history.');
       }
     });
   }

@@ -68,6 +68,20 @@ h4 {
   font-size: 1.12rem;
 }
 
+.operation-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.btn-compact {
+  min-height: 36px;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.9rem;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

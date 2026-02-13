@@ -29,6 +29,7 @@ export class ManagerComponent implements OnInit {
   loading = false;
   readonly disablingClerks = new Set<string>();
   activeSection: ManagerSection = 'accounts';
+  showUpdateAccountForm = false;
 
   private setError(error: unknown, fallback: string): void {
     this.error = toUserMessage(error, fallback);
@@ -50,6 +51,10 @@ export class ManagerComponent implements OnInit {
 
   setSection(section: ManagerSection): void {
     this.activeSection = section;
+  }
+
+  toggleUpdateAccountForm(): void {
+    this.showUpdateAccountForm = !this.showUpdateAccountForm;
   }
 
   get activeClerksCount(): number {
@@ -154,6 +159,43 @@ export class ManagerComponent implements OnInit {
     });
   }
 
+
+
+  viewAccountFromList(account: Account): void {
+    this.selectedAccount = account;
+    this.setSuccess(`Account ${account.accountNumber} loaded.`);
+  }
+
+  beginUpdateAccount(account: Account): void {
+    this.showUpdateAccountForm = true;
+    this.accountUpdateForm.setValue({
+      accountNumber: account.accountNumber,
+      name: account.name,
+      balance: account.balance
+    });
+    this.setSuccess(`Update form opened for account ${account.accountNumber}.`);
+  }
+
+  deleteAccountFromList(account: Account): void {
+    const confirmed = typeof globalThis.confirm === 'function'
+      ? globalThis.confirm(`Delete account ${account.accountNumber}? This action cannot be undone.`)
+      : true;
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.api.deleteAccount(account.accountNumber).subscribe({
+      next: () => {
+        this.setSuccess(`Account ${account.accountNumber} deleted successfully.`);
+        this.refreshAll();
+      },
+      error: (error: unknown) => {
+        this.setError(error, 'Unable to delete account.');
+      }
+    });
+  }
+
   updateAccount(): void {
     if (this.accountUpdateForm.invalid) {
       this.accountUpdateForm.markAllAsTouched();
@@ -164,6 +206,7 @@ export class ManagerComponent implements OnInit {
     this.api.updateAccount(accountNumber, { name, balance }).subscribe({
       next: () => {
         this.setSuccess('Account updated successfully.');
+        this.showUpdateAccountForm = false;
         this.refreshAll();
       },
       error: (error: unknown) => {

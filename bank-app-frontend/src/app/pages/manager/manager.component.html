@@ -63,8 +63,14 @@
       </div>
 
       <div class="operation-box">
-        <h4>Update Account</h4>
-        <form [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="form-grid wide">
+        <div class="operation-head">
+          <h4>Update Account</h4>
+          <button type="button" class="btn btn-secondary btn-compact" (click)="toggleUpdateAccountForm()">
+            {{ showUpdateAccountForm ? 'Close Update Form' : 'Open Update Form' }}
+          </button>
+        </div>
+
+        <form *ngIf="showUpdateAccountForm" [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="form-grid wide">
           <input formControlName="accountNumber" placeholder="Account number" />
           <input formControlName="name" placeholder="Updated customer name" />
           <input type="number" formControlName="balance" placeholder="Updated balance" />
@@ -103,13 +109,18 @@
     <div class="table-box">
       <h4>All Accounts</h4>
       <table>
-        <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
+        <tr><th>No.</th><th>Name</th><th>Balance</th><th>Action</th></tr>
         <tr *ngFor="let account of accounts">
           <td>{{ account.accountNumber }}</td>
           <td>{{ account.name }}</td>
           <td>{{ account.balance | currency : 'INR' }}</td>
+          <td class="action-group">
+            <button class="btn btn-primary btn-compact" (click)="viewAccountFromList(account)">View</button>
+            <button class="btn btn-secondary btn-compact" (click)="beginUpdateAccount(account)">Update</button>
+            <button class="btn btn-danger btn-compact" (click)="deleteAccountFromList(account)">Delete</button>
+          </td>
         </tr>
-        <tr *ngIf="accounts.length === 0"><td colspan="3" class="empty">No accounts available.</td></tr>
+        <tr *ngIf="accounts.length === 0"><td colspan="4" class="empty">No accounts available.</td></tr>
       </table>
     </div>
   </section>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,8 @@ import { toUserMessage } from '../../shared/utils/error-message';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  private readonly fb = inject(FormBuilder);
+
   error = '';
   logoutMessage = localStorage.getItem('logoutMessage') ?? '';
 
@@ -20,7 +22,7 @@ export class LoginComponent {
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(private auth: AuthService, private router: Router) {
     localStorage.removeItem('logoutMessage');
   }
 

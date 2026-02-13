@@ -6,6 +6,31 @@
   margin: 0 auto;
 }
 
+
+.page-messages {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.message-card {
+  margin: 0;
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid #dbe5f4;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.message-card.error {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.message-card.success {
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
+
 .section-card {
   padding: 1.5rem;
   overflow-x: auto;
@@ -70,12 +95,6 @@ h4 {
 
 .table-box {
   margin-top: 0.9rem;
-}
-
-.two-col {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(320px, 1fr));
-  gap: 1rem;
 }
 
 table {
@@ -145,7 +164,6 @@ th {
 
 @media (max-width: 1150px) {
   .operations-grid,
-  .two-col,
   .form-grid,
   .form-grid.wide {
     grid-template-columns: 1fr;

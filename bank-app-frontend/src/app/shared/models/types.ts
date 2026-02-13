@@ -27,6 +27,9 @@ export interface ClerkUserResponse {
   role: Role;
   isActive?: boolean;
   active?: boolean;
+  status?: string;
+  enabled?: boolean;
+  disabled?: boolean;
 }
 
 export interface ClerkUser {

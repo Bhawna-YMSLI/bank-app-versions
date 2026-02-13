@@ -1,6 +1,11 @@
 <app-header title="Manager Dashboard"></app-header>
 
 <main class="page">
+  <section class="page-messages" *ngIf="error || success" aria-live="polite" aria-atomic="true">
+    <p class="error message-card" *ngIf="error">{{ error }}</p>
+    <p class="success message-card" *ngIf="success">{{ success }}</p>
+  </section>
+
   <p class="loading" *ngIf="loading">Loading dashboard...</p>
 
   <section class="card section-card">
@@ -117,50 +122,56 @@
     </table>
   </section>
 
-  <section class="card section-card two-col">
-    <div class="table-box">
+  <section class="card section-card">
+    <div class="section-head">
       <h3>Transaction Lookup</h3>
-      <form [formGroup]="transactionLookupForm" (ngSubmit)="lookupTransactionById()" class="form-grid">
-        <input formControlName="transactionId" placeholder="Transaction ID" />
-        <span></span>
-        <button class="btn btn-secondary" [disabled]="transactionLookupForm.invalid">Load Transaction</button>
-      </form>
-
-      <table *ngIf="selectedTransaction">
-        <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>By</th><th>Approved By</th></tr>
-        <tr>
-          <td>{{ selectedTransaction.transactionId }}</td>
-          <td>{{ selectedTransaction.accountNumber }}</td>
-          <td>{{ selectedTransaction.transactionType }}</td>
-          <td>{{ selectedTransaction.amount | currency : 'INR' }}</td>
-          <td>{{ selectedTransaction.status }}</td>
-          <td>{{ selectedTransaction.performedBy }}</td>
-          <td>{{ selectedTransaction.approvedBy || '-' }}</td>
-        </tr>
-      </table>
+      <p>Find a specific transaction quickly by transaction ID.</p>
     </div>
 
-    <div class="table-box">
-      <h3>Clerk User Management</h3>
-      <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="form-grid">
-        <input formControlName="username" placeholder="Clerk username" />
-        <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
-        <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
-      </form>
+    <form [formGroup]="transactionLookupForm" (ngSubmit)="lookupTransactionById()" class="form-grid">
+      <input formControlName="transactionId" placeholder="Transaction ID" />
+      <span></span>
+      <button class="btn btn-secondary" [disabled]="transactionLookupForm.invalid">Load Transaction</button>
+    </form>
 
-      <table>
-        <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
-        <tr *ngFor="let clerk of clerks">
-          <td>{{ clerk.username }}</td>
-          <td>{{ clerk.role }}</td>
-          <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
-          <td>
-            <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
-          </td>
-        </tr>
-        <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
-      </table>
+    <table *ngIf="selectedTransaction">
+      <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>By</th><th>Approved By</th></tr>
+      <tr>
+        <td>{{ selectedTransaction.transactionId }}</td>
+        <td>{{ selectedTransaction.accountNumber }}</td>
+        <td>{{ selectedTransaction.transactionType }}</td>
+        <td>{{ selectedTransaction.amount | currency : 'INR' }}</td>
+        <td>{{ selectedTransaction.status }}</td>
+        <td>{{ selectedTransaction.performedBy }}</td>
+        <td>{{ selectedTransaction.approvedBy || '-' }}</td>
+      </tr>
+    </table>
+  </section>
+
+  <section class="card section-card">
+    <div class="section-head">
+      <h3>Clerk Management</h3>
+      <p>Create and disable clerk access from a dedicated admin section.</p>
     </div>
+
+    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="form-grid">
+      <input formControlName="username" placeholder="Clerk username" />
+      <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
+      <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
+    </form>
+
+    <table>
+      <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
+      <tr *ngFor="let clerk of clerks">
+        <td>{{ clerk.username }}</td>
+        <td>{{ clerk.role }}</td>
+        <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
+        <td>
+          <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active || isClerkBeingDisabled(clerk.username)">{{ isClerkBeingDisabled(clerk.username) ? 'Disabling...' : 'Disable' }}</button>
+        </td>
+      </tr>
+      <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
+    </table>
   </section>
 
   <section class="card section-card">
@@ -191,6 +202,4 @@
     </table>
   </section>
 
-  <p class="error" *ngIf="error">{{ error }}</p>
-  <p class="success" *ngIf="success">{{ success }}</p>
 </main>

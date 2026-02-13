@@ -92,9 +92,10 @@
     </form>
 
     <table>
-      <tr><th>Username</th><th>Status</th><th>Action</th></tr>
+      <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
       <tr *ngFor="let clerk of clerks">
         <td>{{ clerk.username }}</td>
+        <td>{{ clerk.role }}</td>
         <td>{{ clerk.active ? 'Active' : 'Disabled' }}</td>
         <td>
           <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
@@ -106,12 +107,14 @@
   <section class="card section-card">
     <h3>Withdrawal Approvals</h3>
     <table>
-      <tr><th>ID</th><th>Account</th><th>Amount</th><th>By</th><th>Action</th></tr>
+      <tr><th>ID</th><th>Account</th><th>Amount</th><th>Status</th><th>By</th><th>Date</th><th>Action</th></tr>
       <tr *ngFor="let transaction of pendingTransactions">
         <td>{{ transaction.transactionId }}</td>
         <td>{{ transaction.accountNumber }}</td>
         <td>{{ transaction.amount | currency : 'INR' }}</td>
+        <td>{{ transaction.status }}</td>
         <td>{{ transaction.performedBy }}</td>
+        <td>{{ transaction.createdAt | date : 'short' }}</td>
         <td class="action-group">
           <button class="btn btn-primary" (click)="approve(transaction.transactionId)">Approve</button>
           <button class="btn btn-danger-outline" (click)="reject(transaction.transactionId)">Reject</button>
@@ -151,12 +154,15 @@
     </form>
 
     <table>
-      <tr><th>Txn ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+      <tr><th>Txn ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>Performed By</th><th>Approved By</th><th>Date</th></tr>
       <tr *ngFor="let transaction of history">
         <td>{{ transaction.transactionId }}</td>
+        <td>{{ transaction.accountNumber }}</td>
         <td>{{ transaction.transactionType }}</td>
         <td>{{ transaction.amount | currency : 'INR' }}</td>
         <td>{{ transaction.status }}</td>
+        <td>{{ transaction.performedBy }}</td>
+        <td>{{ transaction.approvedBy || '-' }}</td>
         <td>{{ transaction.createdAt | date : 'medium' }}</td>
       </tr>
     </table>

@@ -25,7 +25,8 @@ export interface AccountRequest {
 export interface ClerkUserResponse {
   username: string;
   role: Role;
-  isActive: boolean;
+  isActive?: boolean;
+  active?: boolean;
 }
 
 export interface ClerkUser {

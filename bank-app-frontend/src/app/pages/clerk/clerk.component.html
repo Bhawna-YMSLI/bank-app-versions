@@ -40,13 +40,15 @@
     </form>
 
     <table *ngIf="selectedTransaction">
-      <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+      <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>Performed By</th><th>Approved By</th><th>Date</th></tr>
       <tr>
         <td>{{ selectedTransaction.transactionId }}</td>
         <td>{{ selectedTransaction.accountNumber }}</td>
         <td>{{ selectedTransaction.transactionType }}</td>
         <td>{{ selectedTransaction.amount | currency : 'INR' }}</td>
         <td>{{ selectedTransaction.status }}</td>
+        <td>{{ selectedTransaction.performedBy }}</td>
+        <td>{{ selectedTransaction.approvedBy || '-' }}</td>
         <td>{{ selectedTransaction.createdAt | date : 'medium' }}</td>
       </tr>
     </table>
@@ -61,12 +63,15 @@
     </form>
 
     <table>
-      <tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+      <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>Performed By</th><th>Approved By</th><th>Date</th></tr>
       <tr *ngFor="let transaction of history">
         <td>{{ transaction.transactionId }}</td>
+        <td>{{ transaction.accountNumber }}</td>
         <td>{{ transaction.transactionType }}</td>
         <td>{{ transaction.amount | currency : 'INR' }}</td>
         <td>{{ transaction.status }}</td>
+        <td>{{ transaction.performedBy }}</td>
+        <td>{{ transaction.approvedBy || '-' }}</td>
         <td>{{ transaction.createdAt | date : 'short' }}</td>
       </tr>
     </table>

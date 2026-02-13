@@ -83,10 +83,12 @@ export class BankApiService {
   }
 
   private toClerkUser(user: ClerkUserResponse): ClerkUser {
+    const normalized = user as ClerkUserResponse & { active?: boolean };
+
     return {
       username: user.username,
       role: user.role,
-      active: user.isActive
+      active: normalized.active ?? user.isActive ?? false
     };
   }
 }

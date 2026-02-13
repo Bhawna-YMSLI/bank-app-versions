@@ -6,6 +6,8 @@ import { BankApiService } from '../../core/bank-api.service';
 import { Account, Transaction } from '../../shared/models/types';
 import { toUserMessage } from '../../shared/utils/error-message';
 
+type ClerkSection = 'cash' | 'accountLookup' | 'transactionLookup' | 'history' | 'accounts';
+
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HeaderComponent],
@@ -20,6 +22,21 @@ export class ClerkComponent implements OnInit {
   selectedTransaction: Transaction | null = null;
   error = '';
   success = '';
+  activeSection: ClerkSection = 'cash';
+
+  private setError(error: unknown, fallback: string): void {
+    this.error = toUserMessage(error, fallback);
+    this.success = '';
+  }
+
+  private setSuccess(message: string): void {
+    this.success = message;
+    this.error = '';
+  }
+
+  setSection(section: ClerkSection): void {
+    this.activeSection = section;
+  }
 
   private setError(error: unknown, fallback: string): void {
     this.error = toUserMessage(error, fallback);

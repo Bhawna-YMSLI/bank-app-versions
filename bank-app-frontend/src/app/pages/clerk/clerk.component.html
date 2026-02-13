@@ -1,7 +1,20 @@
 <app-header title="Clerk Dashboard"></app-header>
 
 <main class="page">
-  <section class="card section-card">
+  <section class="page-messages" *ngIf="error || success" aria-live="polite" aria-atomic="true">
+    <p class="error message-card" *ngIf="error">{{ error }}</p>
+    <p class="success message-card" *ngIf="success">{{ success }}</p>
+  </section>
+
+  <nav class="card section-card section-nav" aria-label="Clerk dashboard navigation">
+    <button class="btn" [class.btn-primary]="activeSection === 'cash'" [class.btn-secondary]="activeSection !== 'cash'" (click)="setSection('cash')">Cash Operations</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'accountLookup'" [class.btn-secondary]="activeSection !== 'accountLookup'" (click)="setSection('accountLookup')">Account Lookup</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'transactionLookup'" [class.btn-secondary]="activeSection !== 'transactionLookup'" (click)="setSection('transactionLookup')">Transaction Lookup</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'history'" [class.btn-secondary]="activeSection !== 'history'" (click)="setSection('history')">Transaction History</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'accounts'" [class.btn-secondary]="activeSection !== 'accounts'" (click)="setSection('accounts')">Accounts List</button>
+  </nav>
+
+  <section class="card section-card" *ngIf="activeSection === 'cash'">
     <h3>Cash Operations</h3>
 
     <div class="operation-grid">
@@ -21,7 +34,7 @@
     </div>
   </section>
 
-  <section class="card section-card">
+  <section class="card section-card" *ngIf="activeSection === 'accountLookup'">
     <h3>Account Lookup</h3>
     <form [formGroup]="accountLookupForm" (ngSubmit)="lookupAccount()" class="grid-3">
       <input formControlName="accountNumber" placeholder="Account Number" />
@@ -39,7 +52,7 @@
     </table>
   </section>
 
-  <section class="card section-card">
+  <section class="card section-card" *ngIf="activeSection === 'transactionLookup'">
     <h3>Transaction Lookup</h3>
     <form [formGroup]="transactionLookupForm" (ngSubmit)="lookupTransactionById()" class="grid-3">
       <input formControlName="transactionId" placeholder="Transaction ID" />
@@ -62,7 +75,7 @@
     </table>
   </section>
 
-  <section class="card section-card">
+  <section class="card section-card" *ngIf="activeSection === 'history'">
     <h3>Transaction History (Read-only)</h3>
     <form [formGroup]="historyForm" (ngSubmit)="loadHistory()" class="grid-3">
       <input formControlName="accountNumber" placeholder="Account Number" />
@@ -86,7 +99,7 @@
     </table>
   </section>
 
-  <section class="card section-card">
+  <section class="card section-card" *ngIf="activeSection === 'accounts'">
     <h3>Accounts (Read-only list)</h3>
     <table>
       <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
@@ -98,7 +111,4 @@
       <tr *ngIf="accounts.length === 0"><td colspan="3" class="empty">No accounts available.</td></tr>
     </table>
   </section>
-
-  <p class="error" *ngIf="error">{{ error }}</p>
-  <p class="success" *ngIf="success">{{ success }}</p>
 </main>

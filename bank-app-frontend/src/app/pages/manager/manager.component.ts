@@ -53,9 +53,6 @@ export class ManagerComponent implements OnInit {
     this.activeSection = section;
   }
 
-  toggleUpdateAccountForm(): void {
-    this.showUpdateAccountForm = !this.showUpdateAccountForm;
-  }
 
   get activeClerksCount(): number {
     return this.clerks.filter((clerk) => clerk.active).length;
@@ -66,9 +63,6 @@ export class ManagerComponent implements OnInit {
     balance: [0, [Validators.required, Validators.min(0)]]
   });
 
-  readonly accountSearchForm = this.fb.nonNullable.group({
-    accountNumber: ['', Validators.required]
-  });
 
   readonly accountUpdateForm = this.fb.nonNullable.group({
     accountNumber: ['', Validators.required],
@@ -76,9 +70,6 @@ export class ManagerComponent implements OnInit {
     balance: [0, [Validators.required, Validators.min(0)]]
   });
 
-  readonly accountDeleteForm = this.fb.nonNullable.group({
-    accountNumber: ['', Validators.required]
-  });
 
   readonly clerkForm = this.fb.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
@@ -140,27 +131,6 @@ export class ManagerComponent implements OnInit {
     });
   }
 
-  searchAccount(): void {
-    if (this.accountSearchForm.invalid) {
-      this.accountSearchForm.markAllAsTouched();
-      return;
-    }
-
-    const { accountNumber } = this.accountSearchForm.getRawValue();
-    this.api.getAccountByNumber(accountNumber).subscribe({
-      next: (account) => {
-        this.selectedAccount = account;
-        this.setSuccess(`Account ${account.accountNumber} loaded.`);
-      },
-      error: (error: unknown) => {
-        this.selectedAccount = null;
-        this.setError(error, 'Unable to load account details.');
-      }
-    });
-  }
-
-
-
   viewAccountFromList(account: Account): void {
     this.selectedAccount = account;
     this.setSuccess(`Account ${account.accountNumber} loaded.`);
@@ -175,6 +145,12 @@ export class ManagerComponent implements OnInit {
     });
     this.setSuccess(`Update form opened for account ${account.accountNumber}.`);
   }
+
+  cancelUpdateAccount(): void {
+    this.showUpdateAccountForm = false;
+    this.accountUpdateForm.reset({ accountNumber: '', name: '', balance: 0 });
+  }
+
 
   deleteAccountFromList(account: Account): void {
     const confirmed = typeof globalThis.confirm === 'function'
@@ -211,25 +187,6 @@ export class ManagerComponent implements OnInit {
       },
       error: (error: unknown) => {
         this.setError(error, 'Unable to update account.');
-      }
-    });
-  }
-
-  deleteAccount(): void {
-    if (this.accountDeleteForm.invalid) {
-      this.accountDeleteForm.markAllAsTouched();
-      return;
-    }
-
-    const { accountNumber } = this.accountDeleteForm.getRawValue();
-    this.api.deleteAccount(accountNumber).subscribe({
-      next: () => {
-        this.setSuccess(`Account ${accountNumber} deleted successfully.`);
-        this.accountDeleteForm.reset({ accountNumber: '' });
-        this.refreshAll();
-      },
-      error: (error: unknown) => {
-        this.setError(error, 'Unable to delete account.');
       }
     });
   }

@@ -62,40 +62,13 @@
         </form>
       </div>
 
-      <div class="operation-box">
-        <div class="operation-head">
-          <h4>Update Account</h4>
-          <button type="button" class="btn btn-secondary btn-compact" (click)="toggleUpdateAccountForm()">
-            {{ showUpdateAccountForm ? 'Close Update Form' : 'Open Update Form' }}
-          </button>
-        </div>
 
-        <form *ngIf="showUpdateAccountForm" [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="form-grid wide">
-          <input formControlName="accountNumber" placeholder="Account number" />
-          <input formControlName="name" placeholder="Updated customer name" />
-          <input type="number" formControlName="balance" placeholder="Updated balance" />
-          <button class="btn btn-secondary" [disabled]="accountUpdateForm.invalid">Update</button>
-        </form>
-      </div>
+    </div>
 
-      <div class="operation-box">
-        <h4>Delete Account</h4>
-        <form [formGroup]="accountDeleteForm" (ngSubmit)="deleteAccount()" class="form-grid">
-          <input formControlName="accountNumber" placeholder="Account number" />
-          <span></span>
-          <button class="btn btn-danger" [disabled]="accountDeleteForm.invalid">Delete</button>
-        </form>
-      </div>
-
-      <div class="operation-box">
-        <h4>Get Account By Number</h4>
-        <form [formGroup]="accountSearchForm" (ngSubmit)="searchAccount()" class="form-grid">
-          <input formControlName="accountNumber" placeholder="Account number" />
-          <span></span>
-          <button class="btn btn-secondary" [disabled]="accountSearchForm.invalid">Load Account</button>
-        </form>
-
-        <table *ngIf="selectedAccount">
+    <div class="detail-panels">
+      <div class="operation-box" *ngIf="selectedAccount">
+        <h4>Account Details</h4>
+        <table>
           <tr><th>Account Number</th><th>Name</th><th>Balance</th></tr>
           <tr>
             <td>{{ selectedAccount.accountNumber }}</td>
@@ -103,6 +76,20 @@
             <td>{{ selectedAccount.balance | currency : 'INR' }}</td>
           </tr>
         </table>
+      </div>
+
+      <div class="operation-box" *ngIf="showUpdateAccountForm">
+        <div class="operation-head">
+          <h4>Update Account</h4>
+          <button type="button" class="btn btn-secondary btn-compact" (click)="cancelUpdateAccount()">Close</button>
+        </div>
+
+        <form [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="form-grid wide">
+          <input formControlName="accountNumber" placeholder="Account number" />
+          <input formControlName="name" placeholder="Updated customer name" />
+          <input type="number" formControlName="balance" placeholder="Updated balance" />
+          <button class="btn btn-secondary" [disabled]="accountUpdateForm.invalid">Update</button>
+        </form>
       </div>
     </div>
 

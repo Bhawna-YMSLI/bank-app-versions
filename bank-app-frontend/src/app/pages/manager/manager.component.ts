@@ -9,6 +9,7 @@ import { Account, ClerkUser, Transaction } from '../../shared/models/types';
 import { toUserMessage } from '../../shared/utils/error-message';
 
 type ManagerSection = 'accounts' | 'approvals' | 'lookup' | 'history' | 'clerks';
+type AccountActionMode = 'list' | 'view' | 'update';
 
 @Component({
   standalone: true,
@@ -29,7 +30,7 @@ export class ManagerComponent implements OnInit {
   loading = false;
   readonly disablingClerks = new Set<string>();
   activeSection: ManagerSection = 'accounts';
-  showUpdateAccountForm = false;
+  accountActionMode: AccountActionMode = 'list';
 
   private setError(error: unknown, fallback: string): void {
     this.error = toUserMessage(error, fallback);
@@ -133,11 +134,12 @@ export class ManagerComponent implements OnInit {
 
   viewAccountFromList(account: Account): void {
     this.selectedAccount = account;
+    this.accountActionMode = 'view';
     this.setSuccess(`Account ${account.accountNumber} loaded.`);
   }
 
   beginUpdateAccount(account: Account): void {
-    this.showUpdateAccountForm = true;
+    this.accountActionMode = 'update';
     this.accountUpdateForm.setValue({
       accountNumber: account.accountNumber,
       name: account.name,
@@ -146,8 +148,8 @@ export class ManagerComponent implements OnInit {
     this.setSuccess(`Update form opened for account ${account.accountNumber}.`);
   }
 
-  cancelUpdateAccount(): void {
-    this.showUpdateAccountForm = false;
+  closeAccountActionPanel(): void {
+    this.accountActionMode = 'list';
     this.accountUpdateForm.reset({ accountNumber: '', name: '', balance: 0 });
   }
 
@@ -182,7 +184,7 @@ export class ManagerComponent implements OnInit {
     this.api.updateAccount(accountNumber, { name, balance }).subscribe({
       next: () => {
         this.setSuccess('Account updated successfully.');
-        this.showUpdateAccountForm = false;
+        this.accountActionMode = 'list';
         this.refreshAll();
       },
       error: (error: unknown) => {

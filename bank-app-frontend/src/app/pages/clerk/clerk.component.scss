@@ -36,6 +36,16 @@
   overflow-x: auto;
 }
 
+.section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+
+  .btn {
+    min-width: 160px;
+  }
+}
+
 h3 {
   margin: 0 0 1rem;
   font-size: 2rem;

@@ -20,7 +20,12 @@ export class ClerkComponent implements OnInit {
   error = '';
   success = '';
 
-  readonly txnForm = this.fb.nonNullable.group({
+  readonly depositForm = this.fb.nonNullable.group({
+    accountNumber: ['', Validators.required],
+    amount: [0.01, [Validators.required, Validators.min(0.01)]]
+  });
+
+  readonly withdrawForm = this.fb.nonNullable.group({
     accountNumber: ['', Validators.required],
     amount: [0.01, [Validators.required, Validators.min(0.01)]]
   });
@@ -74,12 +79,12 @@ export class ClerkComponent implements OnInit {
   }
 
   deposit(): void {
-    if (this.txnForm.invalid) {
-      this.txnForm.markAllAsTouched();
+    if (this.depositForm.invalid) {
+      this.depositForm.markAllAsTouched();
       return;
     }
 
-    this.api.deposit(this.txnForm.getRawValue()).subscribe({
+    this.api.deposit(this.depositForm.getRawValue()).subscribe({
       next: () => {
         this.success = 'Deposit completed successfully.';
         this.error = '';
@@ -92,12 +97,12 @@ export class ClerkComponent implements OnInit {
   }
 
   withdraw(): void {
-    if (this.txnForm.invalid) {
-      this.txnForm.markAllAsTouched();
+    if (this.withdrawForm.invalid) {
+      this.withdrawForm.markAllAsTouched();
       return;
     }
 
-    this.api.withdraw(this.txnForm.getRawValue()).subscribe({
+    this.api.withdraw(this.withdrawForm.getRawValue()).subscribe({
       next: () => {
         this.success = 'Withdrawal request submitted. Approval may be required.';
         this.error = '';

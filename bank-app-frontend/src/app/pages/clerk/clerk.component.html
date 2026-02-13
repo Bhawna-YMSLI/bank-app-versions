@@ -3,14 +3,22 @@
 <main class="page">
   <section class="card section-card">
     <h3>Cash Operations</h3>
-    <form [formGroup]="txnForm" class="grid-3" (ngSubmit)="deposit()">
-      <input formControlName="accountNumber" placeholder="Account Number" />
-      <input type="number" formControlName="amount" placeholder="Amount" />
-      <div class="action-group">
-        <button class="btn btn-primary" [disabled]="txnForm.invalid">Deposit</button>
-        <button type="button" class="btn btn-secondary" (click)="withdraw()" [disabled]="txnForm.invalid">Withdraw</button>
-      </div>
-    </form>
+
+    <div class="operation-grid">
+      <form [formGroup]="depositForm" class="operation-box" (ngSubmit)="deposit()">
+        <h4>Deposit</h4>
+        <input formControlName="accountNumber" placeholder="Account Number" />
+        <input type="number" formControlName="amount" placeholder="Amount" />
+        <button class="btn btn-primary" [disabled]="depositForm.invalid">Deposit</button>
+      </form>
+
+      <form [formGroup]="withdrawForm" class="operation-box" (ngSubmit)="withdraw()">
+        <h4>Withdraw</h4>
+        <input formControlName="accountNumber" placeholder="Account Number" />
+        <input type="number" formControlName="amount" placeholder="Amount" />
+        <button class="btn btn-secondary" [disabled]="withdrawForm.invalid">Withdraw</button>
+      </form>
+    </div>
   </section>
 
   <section class="card section-card">

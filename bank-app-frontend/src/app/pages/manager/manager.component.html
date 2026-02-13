@@ -34,24 +34,6 @@
     </div>
 
     <div class="subsection">
-      <h4>Get Account By Number</h4>
-      <form [formGroup]="accountSearchForm" (ngSubmit)="searchAccount()" class="grid-3">
-        <input formControlName="accountNumber" placeholder="Account number" />
-        <span></span>
-        <button class="btn btn-secondary" [disabled]="accountSearchForm.invalid">Load Account</button>
-      </form>
-
-      <table *ngIf="selectedAccount">
-        <tr><th>Account Number</th><th>Name</th><th>Balance</th></tr>
-        <tr>
-          <td>{{ selectedAccount.accountNumber }}</td>
-          <td>{{ selectedAccount.name }}</td>
-          <td>{{ selectedAccount.balance | currency : 'INR' }}</td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="subsection">
       <h4>Update Account</h4>
       <form [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="grid-4">
         <input formControlName="accountNumber" placeholder="Account number" />
@@ -71,6 +53,24 @@
     </div>
 
     <div class="subsection">
+      <h4>Get Account By Number</h4>
+      <form [formGroup]="accountSearchForm" (ngSubmit)="searchAccount()" class="grid-3">
+        <input formControlName="accountNumber" placeholder="Account number" />
+        <span></span>
+        <button class="btn btn-secondary" [disabled]="accountSearchForm.invalid">Load Account</button>
+      </form>
+
+      <table *ngIf="selectedAccount">
+        <tr><th>Account Number</th><th>Name</th><th>Balance</th></tr>
+        <tr>
+          <td>{{ selectedAccount.accountNumber }}</td>
+          <td>{{ selectedAccount.name }}</td>
+          <td>{{ selectedAccount.balance | currency : 'INR' }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="subsection">
       <h4>All Accounts</h4>
       <table>
         <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
@@ -82,28 +82,6 @@
         <tr *ngIf="accounts.length === 0"><td colspan="3" class="empty">No accounts available.</td></tr>
       </table>
     </div>
-  </section>
-
-  <section class="card section-card">
-    <h3>Clerk User Management</h3>
-    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="grid-3">
-      <input formControlName="username" placeholder="Clerk username" />
-      <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
-      <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
-    </form>
-
-    <table>
-      <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
-      <tr *ngFor="let clerk of clerks">
-        <td>{{ clerk.username }}</td>
-        <td>{{ clerk.role }}</td>
-        <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
-        <td>
-          <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
-        </td>
-      </tr>
-      <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
-    </table>
   </section>
 
   <section class="card section-card">
@@ -169,6 +147,28 @@
         <td>{{ transaction.createdAt | date : 'medium' }}</td>
       </tr>
       <tr *ngIf="history.length === 0"><td colspan="8" class="empty">No transactions available for selected account.</td></tr>
+    </table>
+  </section>
+
+  <section class="card section-card">
+    <h3>Clerk User Management</h3>
+    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="grid-3">
+      <input formControlName="username" placeholder="Clerk username" />
+      <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
+      <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
+    </form>
+
+    <table>
+      <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
+      <tr *ngFor="let clerk of clerks">
+        <td>{{ clerk.username }}</td>
+        <td>{{ clerk.role }}</td>
+        <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
+        <td>
+          <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
+        </td>
+      </tr>
+      <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
     </table>
   </section>
 

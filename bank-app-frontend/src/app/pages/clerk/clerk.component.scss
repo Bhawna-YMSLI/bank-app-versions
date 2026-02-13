@@ -16,16 +16,31 @@ h3 {
   font-size: 2rem;
 }
 
+h4 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.operation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.operation-box {
+  display: grid;
+  gap: 0.6rem;
+  background: #f8fbff;
+  border: 1px solid #d7e4f7;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
 .grid-3 {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: 0.65rem;
   align-items: center;
-}
-
-.action-group {
-  display: flex;
-  gap: 0.55rem;
 }
 
 table {
@@ -53,11 +68,8 @@ th {
 }
 
 @media (max-width: 1024px) {
+  .operation-grid,
   .grid-3 {
     grid-template-columns: 1fr;
-  }
-
-  .action-group {
-    flex-wrap: wrap;
   }
 }

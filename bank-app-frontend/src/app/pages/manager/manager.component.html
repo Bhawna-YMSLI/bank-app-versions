@@ -1,6 +1,11 @@
 <app-header title="Manager Dashboard"></app-header>
 
 <main class="page">
+  <section class="page-messages" *ngIf="error || success" aria-live="polite" aria-atomic="true">
+    <p class="error message-card" *ngIf="error">{{ error }}</p>
+    <p class="success message-card" *ngIf="success">{{ success }}</p>
+  </section>
+
   <p class="loading" *ngIf="loading">Loading dashboard...</p>
 
   <section class="card section-card">
@@ -155,7 +160,7 @@
           <td>{{ clerk.role }}</td>
           <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
           <td>
-            <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
+            <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active || disablingClerks.has(clerk.username)">Disable</button>
           </td>
         </tr>
         <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
@@ -191,6 +196,4 @@
     </table>
   </section>
 
-  <p class="error" *ngIf="error">{{ error }}</p>
-  <p class="success" *ngIf="success">{{ success }}</p>
 </main>

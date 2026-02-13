@@ -29,6 +29,37 @@ small {
   font-size: 1.05rem;
 }
 
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.45);
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.logout-dialog {
+  width: min(420px, 92vw);
+}
+
+.logout-dialog h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.logout-dialog p {
+  margin: 0.75rem 0 0;
+  color: #334155;
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
 @media (max-width: 768px) {
   .topbar {
     flex-direction: column;

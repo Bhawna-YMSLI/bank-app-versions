@@ -1,0 +1,196 @@
+<app-header title="Manager Dashboard"></app-header>
+
+<main class="page">
+  <p class="loading" *ngIf="loading">Loading dashboard...</p>
+
+  <section class="card section-card">
+    <div class="section-head">
+      <h3>AstraTrust Control Center</h3>
+      <p>Monitor accounts, approvals, users and transaction activity in one place.</p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span>Total Accounts</span>
+        <strong>{{ accounts.length }}</strong>
+      </div>
+      <div class="summary-item">
+        <span>Pending Withdrawals</span>
+        <strong>{{ pendingTransactions.length }}</strong>
+      </div>
+      <div class="summary-item">
+        <span>Active Clerks</span>
+        <strong>{{ activeClerksCount }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card section-card">
+    <div class="section-head">
+      <h3>Account Operations</h3>
+      <p>Manage account lifecycle: create, update, delete, and search.</p>
+    </div>
+
+    <div class="operations-grid">
+      <div class="operation-box">
+        <h4>Create Account</h4>
+        <form [formGroup]="accountForm" (ngSubmit)="createAccount()" class="form-grid">
+          <input formControlName="name" placeholder="Customer name" />
+          <input type="number" formControlName="balance" placeholder="Opening balance" />
+          <button class="btn btn-primary" [disabled]="accountForm.invalid">Create</button>
+        </form>
+      </div>
+
+      <div class="operation-box">
+        <h4>Update Account</h4>
+        <form [formGroup]="accountUpdateForm" (ngSubmit)="updateAccount()" class="form-grid wide">
+          <input formControlName="accountNumber" placeholder="Account number" />
+          <input formControlName="name" placeholder="Updated customer name" />
+          <input type="number" formControlName="balance" placeholder="Updated balance" />
+          <button class="btn btn-secondary" [disabled]="accountUpdateForm.invalid">Update</button>
+        </form>
+      </div>
+
+      <div class="operation-box">
+        <h4>Delete Account</h4>
+        <form [formGroup]="accountDeleteForm" (ngSubmit)="deleteAccount()" class="form-grid">
+          <input formControlName="accountNumber" placeholder="Account number" />
+          <span></span>
+          <button class="btn btn-danger" [disabled]="accountDeleteForm.invalid">Delete</button>
+        </form>
+      </div>
+
+      <div class="operation-box">
+        <h4>Get Account By Number</h4>
+        <form [formGroup]="accountSearchForm" (ngSubmit)="searchAccount()" class="form-grid">
+          <input formControlName="accountNumber" placeholder="Account number" />
+          <span></span>
+          <button class="btn btn-secondary" [disabled]="accountSearchForm.invalid">Load Account</button>
+        </form>
+
+        <table *ngIf="selectedAccount">
+          <tr><th>Account Number</th><th>Name</th><th>Balance</th></tr>
+          <tr>
+            <td>{{ selectedAccount.accountNumber }}</td>
+            <td>{{ selectedAccount.name }}</td>
+            <td>{{ selectedAccount.balance | currency : 'INR' }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="table-box">
+      <h4>All Accounts</h4>
+      <table>
+        <tr><th>No.</th><th>Name</th><th>Balance</th></tr>
+        <tr *ngFor="let account of accounts">
+          <td>{{ account.accountNumber }}</td>
+          <td>{{ account.name }}</td>
+          <td>{{ account.balance | currency : 'INR' }}</td>
+        </tr>
+        <tr *ngIf="accounts.length === 0"><td colspan="3" class="empty">No accounts available.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="card section-card">
+    <div class="section-head">
+      <h3>Withdrawal Approvals</h3>
+      <p>Review and action pending withdrawal requests.</p>
+    </div>
+
+    <table>
+      <tr><th>ID</th><th>Account</th><th>Amount</th><th>Status</th><th>By</th><th>Date</th><th>Action</th></tr>
+      <tr *ngFor="let transaction of pendingTransactions">
+        <td>{{ transaction.transactionId }}</td>
+        <td>{{ transaction.accountNumber }}</td>
+        <td>{{ transaction.amount | currency : 'INR' }}</td>
+        <td>{{ transaction.status }}</td>
+        <td>{{ transaction.performedBy }}</td>
+        <td>{{ transaction.createdAt | date : 'short' }}</td>
+        <td class="action-group">
+          <button class="btn btn-primary" (click)="approve(transaction.transactionId)">Approve</button>
+          <button class="btn btn-danger-outline" (click)="reject(transaction.transactionId)">Reject</button>
+        </td>
+      </tr>
+      <tr *ngIf="pendingTransactions.length === 0"><td colspan="7" class="empty">No pending withdrawal approvals.</td></tr>
+    </table>
+  </section>
+
+  <section class="card section-card two-col">
+    <div class="table-box">
+      <h3>Transaction Lookup</h3>
+      <form [formGroup]="transactionLookupForm" (ngSubmit)="lookupTransactionById()" class="form-grid">
+        <input formControlName="transactionId" placeholder="Transaction ID" />
+        <span></span>
+        <button class="btn btn-secondary" [disabled]="transactionLookupForm.invalid">Load Transaction</button>
+      </form>
+
+      <table *ngIf="selectedTransaction">
+        <tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>By</th><th>Approved By</th></tr>
+        <tr>
+          <td>{{ selectedTransaction.transactionId }}</td>
+          <td>{{ selectedTransaction.accountNumber }}</td>
+          <td>{{ selectedTransaction.transactionType }}</td>
+          <td>{{ selectedTransaction.amount | currency : 'INR' }}</td>
+          <td>{{ selectedTransaction.status }}</td>
+          <td>{{ selectedTransaction.performedBy }}</td>
+          <td>{{ selectedTransaction.approvedBy || '-' }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="table-box">
+      <h3>Clerk User Management</h3>
+      <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="form-grid">
+        <input formControlName="username" placeholder="Clerk username" />
+        <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
+        <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
+      </form>
+
+      <table>
+        <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
+        <tr *ngFor="let clerk of clerks">
+          <td>{{ clerk.username }}</td>
+          <td>{{ clerk.role }}</td>
+          <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
+          <td>
+            <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active">Disable</button>
+          </td>
+        </tr>
+        <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="card section-card">
+    <div class="section-head">
+      <h3>Transaction History (Read-only)</h3>
+      <p>Fetch complete account transaction timeline.</p>
+    </div>
+
+    <form [formGroup]="historyForm" (ngSubmit)="loadHistory()" class="form-grid">
+      <input formControlName="accountNumber" placeholder="Enter account number" />
+      <span></span>
+      <button class="btn btn-secondary" [disabled]="historyForm.invalid">View History</button>
+    </form>
+
+    <table>
+      <tr><th>Txn ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Status</th><th>Performed By</th><th>Approved By</th><th>Date</th></tr>
+      <tr *ngFor="let transaction of history">
+        <td>{{ transaction.transactionId }}</td>
+        <td>{{ transaction.accountNumber }}</td>
+        <td>{{ transaction.transactionType }}</td>
+        <td>{{ transaction.amount | currency : 'INR' }}</td>
+        <td>{{ transaction.status }}</td>
+        <td>{{ transaction.performedBy }}</td>
+        <td>{{ transaction.approvedBy || '-' }}</td>
+        <td>{{ transaction.createdAt | date : 'medium' }}</td>
+      </tr>
+      <tr *ngIf="history.length === 0"><td colspan="8" class="empty">No transactions available for selected account.</td></tr>
+    </table>
+  </section>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="success" *ngIf="success">{{ success }}</p>
+</main>

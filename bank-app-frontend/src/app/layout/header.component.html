@@ -1,0 +1,8 @@
+<header class="topbar">
+  <div>
+    <p class="bank-name">AstraTrust Bank</p>
+    <h2>{{ title }}</h2>
+    <small>Signed in as {{ auth.user() }} ({{ auth.role() }})</small>
+  </div>
+  <button class="btn btn-primary" (click)="auth.logout()">Logout</button>
+</header>

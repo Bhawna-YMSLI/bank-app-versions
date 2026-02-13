@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HeaderComponent } from '../../layout/header.component';
 import { BankApiService } from '../../core/bank-api.service';
 import { Account, Transaction } from '../../shared/models/types';
 import { toUserMessage } from '../../shared/utils/error-message';
+
+type ClerkSection = 'cash' | 'accountLookup' | 'transactionLookup' | 'history' | 'accounts';
 
 @Component({
   standalone: true,
@@ -13,12 +15,28 @@ import { toUserMessage } from '../../shared/utils/error-message';
   styleUrl: './clerk.component.scss'
 })
 export class ClerkComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   accounts: Account[] = [];
   history: Transaction[] = [];
   selectedAccount: Account | null = null;
   selectedTransaction: Transaction | null = null;
   error = '';
   success = '';
+  activeSection: ClerkSection = 'cash';
+
+  private setError(error: unknown, fallback: string): void {
+    this.error = toUserMessage(error, fallback);
+    this.success = '';
+  }
+
+  private setSuccess(message: string): void {
+    this.success = message;
+    this.error = '';
+  }
+
+  setSection(section: ClerkSection): void {
+    this.activeSection = section;
+  }
 
   readonly depositForm = this.fb.nonNullable.group({
     accountNumber: ['', Validators.required],
@@ -42,7 +60,7 @@ export class ClerkComponent implements OnInit {
     transactionId: ['', Validators.required]
   });
 
-  constructor(private fb: FormBuilder, private api: BankApiService) {}
+  constructor(private api: BankApiService) {}
 
   ngOnInit(): void {
     this.loadAccounts();
@@ -54,7 +72,7 @@ export class ClerkComponent implements OnInit {
         this.accounts = accounts;
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to load accounts list.');
+        this.setError(error, 'Unable to load accounts list.');
       }
     });
   }
@@ -69,11 +87,11 @@ export class ClerkComponent implements OnInit {
     this.api.getAccountByNumber(accountNumber).subscribe({
       next: (account) => {
         this.selectedAccount = account;
-        this.error = '';
+        this.success = '';
       },
       error: (error: unknown) => {
         this.selectedAccount = null;
-        this.error = toUserMessage(error, 'Unable to load account details.');
+        this.setError(error, 'Unable to load account details.');
       }
     });
   }
@@ -86,12 +104,11 @@ export class ClerkComponent implements OnInit {
 
     this.api.deposit(this.depositForm.getRawValue()).subscribe({
       next: () => {
-        this.success = 'Deposit completed successfully.';
-        this.error = '';
+        this.setSuccess('Deposit completed successfully.');
         this.loadAccounts();
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Deposit failed. Check details and try again.');
+        this.setError(error, 'Deposit failed. Check details and try again.');
       }
     });
   }
@@ -104,11 +121,10 @@ export class ClerkComponent implements OnInit {
 
     this.api.withdraw(this.withdrawForm.getRawValue()).subscribe({
       next: () => {
-        this.success = 'Withdrawal request submitted. Approval may be required.';
-        this.error = '';
+        this.setSuccess('Withdrawal request submitted. Approval may be required.');
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Withdrawal failed. Please verify balance and account.');
+        this.setError(error, 'Withdrawal failed. Please verify balance and account.');
       }
     });
   }
@@ -123,11 +139,11 @@ export class ClerkComponent implements OnInit {
     this.api.getTransactionById(transactionId).subscribe({
       next: (transaction) => {
         this.selectedTransaction = transaction;
-        this.error = '';
+        this.success = '';
       },
       error: (error: unknown) => {
         this.selectedTransaction = null;
-        this.error = toUserMessage(error, 'Unable to load transaction details.');
+        this.setError(error, 'Unable to load transaction details.');
       }
     });
   }
@@ -141,10 +157,10 @@ export class ClerkComponent implements OnInit {
     this.api.getTransactionsByAccount(this.historyForm.getRawValue().accountNumber).subscribe({
       next: (transactions) => {
         this.history = transactions;
-        this.error = '';
+        this.success = '';
       },
       error: (error: unknown) => {
-        this.error = toUserMessage(error, 'Unable to fetch transaction history.');
+        this.setError(error, 'Unable to fetch transaction history.');
       }
     });
   }

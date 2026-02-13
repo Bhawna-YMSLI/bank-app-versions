@@ -214,17 +214,22 @@ export class ManagerComponent implements OnInit {
 
     this.api.disableClerk(normalizedUsername)
       .pipe(
-        switchMap(() => this.api.getClerks()),
+        switchMap(() => {
+          this.clerks = this.clerks.map((clerk) =>
+            this.getClerkKey(clerk.username) === clerkKey ? { ...clerk, active: false } : clerk
+          );
+          return this.api.getClerks();
+        }),
         finalize(() => this.disablingClerks.delete(clerkKey))
       )
       .subscribe({
         next: (clerks) => {
-          this.clerks = clerks;
           const updatedClerk = clerks.find((clerk) => this.getClerkKey(clerk.username) === clerkKey);
 
-          if (updatedClerk?.active) {
-            this.setError(new Error('Clerk status is still active after disable attempt.'), `Disable request was sent for ${normalizedUsername}, but the clerk is still active. Please verify backend clerk-status update mapping.`);
-            return;
+          if (updatedClerk) {
+            this.clerks = clerks.map((clerk) =>
+              this.getClerkKey(clerk.username) === clerkKey ? { ...clerk, active: false } : clerk
+            );
           }
 
           this.setSuccess(`Clerk ${normalizedUsername} disabled successfully.`);

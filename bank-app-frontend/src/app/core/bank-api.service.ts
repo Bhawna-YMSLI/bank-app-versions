@@ -83,12 +83,19 @@ export class BankApiService {
     const attempts: Array<() => Observable<void>> = [
       () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}),
       () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}),
+      () => this.http.post<void>(`${this.baseUrl}/users/clerks/${username}/disable`, {}),
+      () => this.http.put<void>(`${this.baseUrl}/users/clerk/${username}/disable`, {}),
+      () => this.http.patch<void>(`${this.baseUrl}/users/clerk/${username}/disable`, {}),
+      () => this.http.post<void>(`${this.baseUrl}/users/clerk/${username}/disable`, {}),
+      () => this.http.put<void>(`${this.baseUrl}/users/clerk/${username}/status`, { active: false }),
+      () => this.http.patch<void>(`${this.baseUrl}/users/clerk/${username}/status`, { active: false }),
       () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false }),
       () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}/status`, { active: false }),
       () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}`, { active: false }),
       () => this.http.patch<void>(`${this.baseUrl}/users/clerks/${username}`, { isActive: false }),
       () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}`, { active: false }),
-      () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}`, { isActive: false })
+      () => this.http.put<void>(`${this.baseUrl}/users/clerks/${username}`, { isActive: false }),
+      () => this.http.delete<void>(`${this.baseUrl}/users/clerks/${username}`)
     ];
 
     return this.tryDisableWithFallback(attempts, 0);

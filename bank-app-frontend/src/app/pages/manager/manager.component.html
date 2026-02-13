@@ -10,7 +10,7 @@
 
   <section class="card section-card">
     <div class="section-head">
-      <h3>AstraTrust Control Center</h3>
+      <h3>Bank Control Center</h3>
       <p>Monitor accounts, approvals, users and transaction activity in one place.</p>
     </div>
 
@@ -150,32 +150,6 @@
 
   <section class="card section-card">
     <div class="section-head">
-      <h3>Clerk Management</h3>
-      <p>Create and disable clerk access from a dedicated admin section.</p>
-    </div>
-
-    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="form-grid">
-      <input formControlName="username" placeholder="Clerk username" />
-      <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
-      <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
-    </form>
-
-    <table>
-      <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
-      <tr *ngFor="let clerk of clerks">
-        <td>{{ clerk.username }}</td>
-        <td>{{ clerk.role }}</td>
-        <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
-        <td>
-          <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active || isClerkBeingDisabled(clerk.username)">{{ isClerkBeingDisabled(clerk.username) ? 'Disabling...' : 'Disable' }}</button>
-        </td>
-      </tr>
-      <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
-    </table>
-  </section>
-
-  <section class="card section-card">
-    <div class="section-head">
       <h3>Transaction History (Read-only)</h3>
       <p>Fetch complete account transaction timeline.</p>
     </div>
@@ -201,5 +175,32 @@
       <tr *ngIf="history.length === 0"><td colspan="8" class="empty">No transactions available for selected account.</td></tr>
     </table>
   </section>
+
+  <section class="card section-card">
+    <div class="section-head">
+      <h3>Clerk Management</h3>
+      <p>Create and disable clerk access from a dedicated admin section.</p>
+    </div>
+
+    <form [formGroup]="clerkForm" (ngSubmit)="createClerk()" class="form-grid">
+      <input formControlName="username" placeholder="Clerk username" />
+      <input formControlName="password" type="password" placeholder="Minimum 8 characters" />
+      <button class="btn btn-secondary" [disabled]="clerkForm.invalid">Create Clerk</button>
+    </form>
+
+    <table>
+      <tr><th>Username</th><th>Role</th><th>Status</th><th>Action</th></tr>
+      <tr *ngFor="let clerk of clerks">
+        <td>{{ clerk.username }}</td>
+        <td>{{ clerk.role }}</td>
+        <td><span class="badge" [class.badge-live]="clerk.active" [class.badge-disabled]="!clerk.active">{{ clerk.active ? 'Active' : 'Disabled' }}</span></td>
+        <td>
+          <button class="btn" (click)="disableClerk(clerk.username)" [disabled]="!clerk.active || isClerkBeingDisabled(clerk.username)">{{ isClerkBeingDisabled(clerk.username) ? 'Disabling...' : 'Disable' }}</button>
+        </td>
+      </tr>
+      <tr *ngIf="clerks.length === 0"><td colspan="4" class="empty">No clerks found.</td></tr>
+    </table>
+  </section>
+
 
 </main>

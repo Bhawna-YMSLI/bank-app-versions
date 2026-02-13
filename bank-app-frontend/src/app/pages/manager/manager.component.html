@@ -8,6 +8,14 @@
 
   <p class="loading" *ngIf="loading">Loading dashboard...</p>
 
+  <nav class="card section-card section-nav" aria-label="Manager dashboard navigation">
+    <button class="btn" [class.btn-primary]="activeSection === 'accounts'" [class.btn-secondary]="activeSection !== 'accounts'" (click)="setSection('accounts')">Account Operations</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'approvals'" [class.btn-secondary]="activeSection !== 'approvals'" (click)="setSection('approvals')">Withdrawal Approvals</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'lookup'" [class.btn-secondary]="activeSection !== 'lookup'" (click)="setSection('lookup')">Transaction Lookup</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'history'" [class.btn-secondary]="activeSection !== 'history'" (click)="setSection('history')">Transaction History</button>
+    <button class="btn" [class.btn-primary]="activeSection === 'clerks'" [class.btn-secondary]="activeSection !== 'clerks'" (click)="setSection('clerks')">Clerk Management</button>
+  </nav>
+
   <section class="card section-card">
     <div class="section-head">
       <h3>Bank Control Center</h3>
@@ -29,14 +37,6 @@
       </div>
     </div>
   </section>
-
-  <nav class="card section-card section-nav" aria-label="Manager dashboard navigation">
-    <button class="btn" [class.btn-primary]="activeSection === 'accounts'" [class.btn-secondary]="activeSection !== 'accounts'" (click)="setSection('accounts')">Account Operations</button>
-    <button class="btn" [class.btn-primary]="activeSection === 'approvals'" [class.btn-secondary]="activeSection !== 'approvals'" (click)="setSection('approvals')">Withdrawal Approvals</button>
-    <button class="btn" [class.btn-primary]="activeSection === 'lookup'" [class.btn-secondary]="activeSection !== 'lookup'" (click)="setSection('lookup')">Transaction Lookup</button>
-    <button class="btn" [class.btn-primary]="activeSection === 'history'" [class.btn-secondary]="activeSection !== 'history'" (click)="setSection('history')">Transaction History</button>
-    <button class="btn" [class.btn-primary]="activeSection === 'clerks'" [class.btn-secondary]="activeSection !== 'clerks'" (click)="setSection('clerks')">Clerk Management</button>
-  </nav>
 
   <section class="card section-card" *ngIf="activeSection === 'accounts'">
     <div class="section-head">

@@ -38,16 +38,6 @@ export class ClerkComponent implements OnInit {
     this.activeSection = section;
   }
 
-  private setError(error: unknown, fallback: string): void {
-    this.error = toUserMessage(error, fallback);
-    this.success = '';
-  }
-
-  private setSuccess(message: string): void {
-    this.success = message;
-    this.error = '';
-  }
-
   readonly depositForm = this.fb.nonNullable.group({
     accountNumber: ['', Validators.required],
     amount: [0.01, [Validators.required, Validators.min(0.01)]]
